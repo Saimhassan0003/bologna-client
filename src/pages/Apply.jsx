@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
+import axios from 'axios';import API_URL from '../config/api';import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
 
@@ -72,7 +71,7 @@ const Apply = () => {
   useEffect(() => {
     const fetchAcademicOptions = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/options');
+        const response = await axios.get(`${API_URL}/api/options`);
         if (response.data) {
           const { departments: dbDeps, programmes: dbProgs, intakes: dbInts } = response.data;
           if (dbDeps?.length > 0) setDepartments(dbDeps);
@@ -217,7 +216,7 @@ const Apply = () => {
     if (transcript3) data.append('transcript3', transcript3);
 
     try {
-      await axios.post('http://localhost:5000/api/applications', data, {
+      await axios.post(`${API_URL}/api/applications`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

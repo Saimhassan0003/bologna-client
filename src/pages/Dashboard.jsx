@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import API_URL from '../config/api';
 import logo from '../assets/logo.png';
 
 
@@ -88,7 +89,7 @@ const Dashboard = () => {
 
   const fetchAcademicOptions = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/options');
+      const response = await axios.get(`${API_URL}/api/options`);
       if (response.data) {
         setDepartments(response.data.departments || []);
         setProgrammes(response.data.programmes || []);
@@ -111,7 +112,7 @@ const Dashboard = () => {
     setSavingOptions(true);
     setSaveSuccessMsg('');
     try {
-      await axios.put('http://localhost:5000/api/options', {
+      await axios.put(`${API_URL}/api/options`, {
         departments: updatedDeps,
         programmes: updatedProgs,
         intakes: updatedIntks
@@ -304,7 +305,7 @@ const Dashboard = () => {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/applications', {
+      const response = await axios.get(`${API_URL}/api/applications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setApplications(response.data);
@@ -322,7 +323,7 @@ const Dashboard = () => {
   const handleStatusChange = async (id, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`http://localhost:5000/api/applications/${id}/status`, 
+      await axios.patch(`${API_URL}/api/applications/${id}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -360,7 +361,7 @@ const Dashboard = () => {
   const getFileUrl = (path) => {
     if (!path) return '';
     if (path.startsWith('http')) return path; // Seeded images
-    return `http://localhost:5000${path}`;
+    return `${API_URL}${path}`;
   };
 
   // Analytics helper metrics
