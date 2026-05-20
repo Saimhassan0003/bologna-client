@@ -16,7 +16,7 @@ const Home = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <div className="relative bg-gray-900 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
+        <div className="relative bg-gray-900 min-h-[250px] sm:min-h-[300px] md:min-h-[400px] flex items-center justify-center overflow-hidden">
           {/* Background Image Overlay */}
           <div className="absolute inset-0 z-0">
             <img 
@@ -28,7 +28,7 @@ const Home = () => {
           </div>
 
           <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-6 sm:mt-12">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-8 font-serif leading-tight text-white drop-shadow-lg">
+            <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-4 sm:mb-8 font-serif leading-tight text-white drop-shadow-lg">
               Developing people with <span className="text-uniboRed drop-shadow-md">skills</span> and <span className="text-uniboRed drop-shadow-md">knowledge</span> that equip them for current and future employment
             </h1>
             
