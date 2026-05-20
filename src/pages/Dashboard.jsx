@@ -45,6 +45,7 @@ const Dashboard = () => {
 
   const [savingOptions, setSavingOptions] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+  const [updatingAppId, setUpdatingAppId] = useState(null);
 
   useEffect(() => {
     fetchApplications();
@@ -302,7 +303,10 @@ const Dashboard = () => {
 
   const fetchApplications = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/applications');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/applications', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setApplications(response.data);
     } catch (error) {
       console.error('Error fetching applications:', error);
@@ -317,9 +321,11 @@ const Dashboard = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/applications/${id}/status`, {
-        status: newStatus
-      });
+      const token = localStorage.getItem('token');
+      await axios.patch(`http://localhost:5000/api/applications/${id}/status`, 
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       
       // Update local state
       setApplications(applications.map(app => 
