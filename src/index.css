@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-uniboRed: #F16E24;
+  --color-uniboDarkRed: #881D1C;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Georgia', serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-gray-900);
+    background-color: var(--color-white);
+  }
+}
