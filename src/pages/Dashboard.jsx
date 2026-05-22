@@ -19,8 +19,23 @@ const Dashboard = () => {
   const [programmes, setProgrammes] = useState([]);
   const [intakes, setIntakes] = useState([]);
 
+  // Centres States
+  const [centres, setCentres] = useState([]);
+  const [newCentreName, setNewCentreName] = useState('');
+  const [newCentreEmail, setNewCentreEmail] = useState('');
+  const [newCentrePhone, setNewCentrePhone] = useState('');
+  const [showAddCentreModal, setShowAddCentreModal] = useState(false);
+  const [editingCentreId, setEditingCentreId] = useState(null);
+  const [editingCentreName, setEditingCentreName] = useState('');
+  const [editingCentreEmail, setEditingCentreEmail] = useState('');
+  const [editingCentrePhone, setEditingCentrePhone] = useState('');
+  const [centreError, setCentreError] = useState('');
+
+
   const [newDepartment, setNewDepartment] = useState('');
   const [newProgramme, setNewProgramme] = useState('');
+  const [newCreditHours, setNewCreditHours] = useState('');
+  const [newPrice, setNewPrice] = useState('');
   const [newIntake, setNewIntake] = useState('');
   const [newDeptProgrammes, setNewDeptProgrammes] = useState('');
 
@@ -40,6 +55,8 @@ const Dashboard = () => {
 
   const [editingProgIdx, setEditingProgIdx] = useState(null);
   const [editingProgVal, setEditingProgVal] = useState('');
+  const [editingProgCredits, setEditingProgCredits] = useState('');
+  const [editingProgPrice, setEditingProgPrice] = useState('');
 
   const [editingIntkIdx, setEditingIntkIdx] = useState(null);
   const [editingIntkVal, setEditingIntkVal] = useState('');
@@ -51,7 +68,9 @@ const Dashboard = () => {
   useEffect(() => {
     fetchApplications();
     fetchAcademicOptions();
+    fetchCentres();
   }, []);
+
 
   // Sync default options select dropdown values
   useEffect(() => {
@@ -108,14 +127,86 @@ const Dashboard = () => {
     }
   };
 
+  const fetchCentres = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/api/centres`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCentres(response.data);
+    } catch (error) {
+      console.error('Error fetching centres:', error);
+    }
+  };
+
+  const addCentre = async () => {
+    setCentreError('');
+    if (!newCentreName.trim() || !newCentreEmail.trim()) {
+      setCentreError('Centre name and email are required.');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API_URL}/api/centres`, {
+        name: newCentreName.trim(),
+        email: newCentreEmail.trim(),
+        phone: newCentrePhone.trim()
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      setCentres(prev => [response.data, ...prev]);
+      setNewCentreName('');
+      setNewCentreEmail('');
+      setNewCentrePhone('');
+      setShowAddCentreModal(false);
+    } catch (error) {
+      setCentreError(error.response?.data?.message || 'Failed to create centre.');
+    }
+  };
+
+  const saveCentreEdit = async (id) => {
+    setCentreError('');
+    if (!editingCentreName.trim() || !editingCentreEmail.trim()) {
+      setCentreError('Centre name and email are required.');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${API_URL}/api/centres/${id}`, {
+        name: editingCentreName.trim(),
+        email: editingCentreEmail.trim(),
+        phone: editingCentrePhone.trim()
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      setCentres(prev => prev.map(c => c._id === id ? response.data : c));
+      setEditingCentreId(null);
+    } catch (error) {
+      setCentreError(error.response?.data?.message || 'Failed to update centre.');
+    }
+  };
+
+  const removeCentre = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this centre?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/api/centres/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCentres(prev => prev.filter(c => c._id !== id));
+    } catch (error) {
+      console.error('Error deleting centre:', error);
+    }
+  };
+
+
   const saveToDatabase = async (updatedDeps, updatedProgs, updatedIntks) => {
     setSavingOptions(true);
     setSaveSuccessMsg('');
     try {
+      const token = localStorage.getItem('token');
       await axios.put(`${API_URL}/api/options`, {
         departments: updatedDeps,
         programmes: updatedProgs,
         intakes: updatedIntks
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       setSaveSuccessMsg('Changes auto-saved successfully!');
       setTimeout(() => setSaveSuccessMsg(''), 2000);
@@ -207,13 +298,16 @@ const Dashboard = () => {
       return;
     }
 
-    const newProgObj = { department: dept, programme: newProgramme.trim() };
+    const newProgObj = { department: dept, programme: newProgramme.trim(), creditHours: newCreditHours.trim(), price: newPrice.trim() };
     const updated = [...programmes, newProgObj];
     setProgrammes(updated);
     setNewProgramme('');
+    setNewCreditHours('');
+    setNewPrice('');
     await saveToDatabase(departments, updated, intakes);
     setShowAddProgModal(false);
   };
+
 
   const removeProgramme = async (index) => {
     const updated = programmes.filter((_, i) => i !== index);
@@ -228,12 +322,16 @@ const Dashboard = () => {
     if (current && typeof current === 'object') {
       updated[index] = {
         ...current,
-        programme: editingProgVal.trim()
+        programme: editingProgVal.trim(),
+        creditHours: editingProgCredits.trim(),
+        price: editingProgPrice.trim()
       };
     } else {
       updated[index] = {
         department: departments[0] || 'Level 5 Higher Diploma',
-        programme: editingProgVal.trim()
+        programme: editingProgVal.trim(),
+        creditHours: editingProgCredits.trim(),
+        price: editingProgPrice.trim()
       };
     }
     setProgrammes(updated);
@@ -380,9 +478,9 @@ const Dashboard = () => {
         {/* Sidebar Header / Branding */}
         <div>
           <div className="p-5 border-b border-gray-800 flex items-center gap-3">
-            <div className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md">
+            <Link to="/" className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-350 cursor-pointer">
               <img src={logo} alt="Institute Bologna" className="h-13 w-auto object-contain" />
-            </div>
+            </Link>
             <div className="flex flex-col">
               <span className="text-white font-bold text-xs tracking-wider font-serif">INSTITUTE</span>
               <span className="text-gray-400 text-[10px] font-bold">Admissions Admin</span>
@@ -456,6 +554,24 @@ const Dashboard = () => {
               Intakes
             </button>
 
+            <button
+              onClick={() => setActiveTab('centres')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                activeTab === 'centres' 
+                  ? 'bg-uniboRed text-white shadow-md' 
+                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              Approved Centres
+              {centres.length > 0 && (
+                <span className="ml-auto bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {centres.length}
+                </span>
+              )}
+            </button>
+
+
             <div className="pt-4 border-t border-gray-800 mt-4">
               <Link
                 to="/"
@@ -495,9 +611,9 @@ const Dashboard = () => {
         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shrink-0 z-20">
           <div className="flex items-center gap-2 md:hidden">
             {/* Logo on Mobile */}
-            <div className="h-12 bg-white rounded-md p-1 flex items-center justify-center border border-gray-200 shadow-sm">
+            <Link to="/" className="h-12 bg-white rounded-md p-1 flex items-center justify-center border border-gray-200 shadow-sm hover:scale-105 transition-transform duration-350 cursor-pointer">
               <img src={logo} alt="Institute Bologna" className="h-10 w-auto object-contain" />
-            </div>
+            </Link>
             <span className="text-gray-900 font-bold text-sm">Institute Bologna Admin</span>
           </div>
 
@@ -933,14 +1049,19 @@ const Dashboard = () => {
                       <tr>
                         <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Department</th>
                         <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Programme</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Credits</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Price</th>
                         <th scope="col" className="px-6 py-3.5 text-right text-xs font-extrabold text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
+
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
                       {programmes.map((prog, idx) => {
                         const isEditing = editingProgIdx === idx;
                         const itemDept = typeof prog === 'object' && prog !== null ? prog.department : (departments[0] || 'Level 5 Higher Diploma');
                         const itemVal = typeof prog === 'object' && prog !== null ? prog.programme : prog;
+                        const itemCredits = typeof prog === 'object' && prog !== null ? (prog.creditHours || 'â€”') : 'â€”';
+                        const itemPrice = typeof prog === 'object' && prog !== null ? (prog.price || 'â€”') : 'â€”';
 
                         return (
                           <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
@@ -958,6 +1079,34 @@ const Dashboard = () => {
                                 />
                               ) : (
                                 <span className="text-sm font-bold text-gray-900">{itemVal}</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editingProgCredits}
+                                  onChange={(e) => setEditingProgCredits(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
+                                  className="w-full max-w-[100px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  placeholder="Credits"
+                                />
+                              ) : (
+                                itemCredits
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editingProgPrice}
+                                  onChange={(e) => setEditingProgPrice(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  placeholder="Price"
+                                />
+                              ) : (
+                                itemPrice
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
@@ -982,6 +1131,8 @@ const Dashboard = () => {
                                     onClick={() => {
                                       setEditingProgIdx(idx);
                                       setEditingProgVal(itemVal);
+                                      setEditingProgCredits(typeof prog === 'object' && prog !== null ? (prog.creditHours || '') : '');
+                                      setEditingProgPrice(typeof prog === 'object' && prog !== null ? (prog.price || '') : '');
                                     }}
                                     className="px-2.5 py-1 text-xs border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md font-semibold transition-colors"
                                   >
@@ -1141,6 +1292,189 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+          {/* TAB 6: CENTRES SECTION */}
+          {activeTab === 'centres' && (
+            <div className="space-y-6 animate-fade-in pb-12">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-5">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 font-serif">Approved Centres</h1>
+                  <p className="mt-1 text-sm text-gray-600 font-medium text-gray-500">Manage university-approved regional registration centres. Changes are saved instantly.</p>
+                </div>
+                <button
+                  onClick={() => { setCentreError(''); setShowAddCentreModal(true); }}
+                  className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                  Add Centre
+                </button>
+              </div>
+
+              {centreError && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                  <p className="text-sm text-red-700 font-semibold">{centreError}</p>
+                </div>
+              )}
+
+              {/* Cards Grid */}
+              {centres.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-dashed border-gray-300">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 font-serif">No Centres Registered</h3>
+                  <p className="text-sm text-gray-500 mt-1 max-w-xs">Add your first approved centre to make it available for applicants during registration.</p>
+                  <button
+                    onClick={() => { setCentreError(''); setShowAddCentreModal(true); }}
+                    className="mt-5 px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md"
+                  >
+                    + Add First Centre
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {centres.map((centre) => {
+                    const isEditing = editingCentreId === centre._id;
+                    const initials = centre.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+                    const colours = [
+                      'from-violet-600 to-purple-700',
+                      'from-uniboRed to-rose-700',
+                      'from-blue-600 to-indigo-700',
+                      'from-emerald-600 to-teal-700',
+                      'from-amber-500 to-orange-600',
+                      'from-pink-600 to-fuchsia-700',
+                    ];
+                    const colourClass = colours[centre.name.charCodeAt(0) % colours.length];
+
+                    return (
+                      <div
+                        key={centre._id}
+                        className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                      >
+                        {/* Top accent stripe */}
+                        <div className={`h-1.5 w-full bg-gradient-to-r ${colourClass}`}></div>
+
+                        <div className="p-6">
+                          {isEditing ? (
+                            /* Edit Mode */
+                            <div className="space-y-3">
+                              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Edit Centre</p>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Centre Name</label>
+                                <input
+                                  type="text"
+                                  value={editingCentreName}
+                                  onChange={(e) => setEditingCentreName(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
+                                  placeholder="Centre name"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email Address</label>
+                                <input
+                                  type="email"
+                                  value={editingCentreEmail}
+                                  onChange={(e) => setEditingCentreEmail(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
+                                  placeholder="email@example.com"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Contact Number</label>
+                                <input
+                                  type="text"
+                                  value={editingCentrePhone}
+                                  onChange={(e) => setEditingCentrePhone(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
+                                  placeholder="e.g. +39 051 209 0000"
+                                />
+                              </div>
+                              <div className="flex gap-2 pt-2">
+                                <button
+                                  onClick={() => saveCentreEdit(centre._id)}
+                                  className="flex-1 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold rounded-lg transition-colors"
+                                >
+                                  Save Changes
+                                  </button>
+                                <button
+                                  onClick={() => { setEditingCentreId(null); setCentreError(''); }}
+                                  className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            /* View Mode */
+                            <div>
+                              <div className="flex items-start gap-4">
+                                {/* Avatar */}
+                                <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${colourClass} flex items-center justify-center shadow-md`}>
+                                  <span className="text-white font-extrabold text-sm tracking-wider">{initials}</span>
+                                </div>
+                                {/* Info */}
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-base font-bold text-gray-900 font-serif leading-tight truncate capitalize">{centre.name}</h3>
+                                  <div className="mt-1.5 flex items-center gap-1.5">
+                                    <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    <span className="text-xs text-gray-500 font-medium truncate">{centre.email}</span>
+                                  </div>
+                                  {centre.phone && (
+                                    <div className="mt-1 flex items-center gap-1.5">
+                                      <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                      <span className="text-xs text-gray-500 font-medium truncate">{centre.phone}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+ 
+                              {/* Status + Added date */}
+                              <div className="mt-4 flex items-center justify-between">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 border border-green-200 text-green-700 text-[11px] font-bold rounded-full">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                  Active
+                                </span>
+                                <p className="text-[10px] text-gray-400 font-medium">
+                                  {centre.createdAt ? new Date(centre.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'}
+                                </p>
+                              </div>
+ 
+                              {/* Divider */}
+                              <div className="mt-4 border-t border-gray-100"></div>
+
+                              {/* Action Buttons */}
+                              <div className="mt-4 flex items-center gap-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingCentreId(centre._id);
+                                    setEditingCentreName(centre.name);
+                                    setEditingCentreEmail(centre.email);
+                                    setEditingCentrePhone(centre.phone || '');
+                                    setCentreError('');
+                                  }}
+                                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors"
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => removeCentre(centre._id)}
+                                  className="flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-xs font-bold rounded-lg transition-colors"
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                  Remove
+                                </button>
+                              </div>
+
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
 
@@ -1252,11 +1586,11 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Credit Hours</p>
-                      <p className="text-gray-800 font-medium">{selectedApp.creditHours}</p>
+                      <p className="text-gray-800 font-medium">{selectedApp.creditHours || '—'}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Price</p>
-                      <p className="text-gray-800 font-medium">{selectedApp.price}</p>
+                      <p className="text-gray-800 font-medium">{selectedApp.price || '—'}</p>
                     </div>
                   </div>
 
@@ -1503,6 +1837,29 @@ const Dashboard = () => {
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Credit Hours</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 120 ECTS"
+                    value={newCreditHours}
+                    onChange={(e) => setNewCreditHours(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Price</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 3,000 EUR"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Modal Footer */}
@@ -1614,7 +1971,84 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Add Centre Popup Card Modal */}
+      {showAddCentreModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-fade-in-up">
+            {/* Modal Header */}
+            <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="text-lg font-bold font-serif">Add Approved Centre</h3>
+                <p className="text-xs text-gray-400">Register a new university-approved regional centre</p>
+              </div>
+              <button
+                onClick={() => setShowAddCentreModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {centreError && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg">
+                  <p className="text-xs text-red-700 font-semibold">{centreError}</p>
+                </div>
+              )}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Centre Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Bologna Study Centre Nairobi"
+                  value={newCentreName}
+                  onChange={(e) => setNewCentreName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Centre Email</label>
+                <input
+                  type="email"
+                  placeholder="e.g. nairobi@unibo-partner.com"
+                  value={newCentreEmail}
+                  onChange={(e) => setNewCentreEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Centre Contact Number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +39 051 209 0000"
+                  value={newCentrePhone}
+                  onChange={(e) => setNewCentrePhone(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
+              <button
+                onClick={() => { setShowAddCentreModal(false); setCentreError(''); }}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addCentre}
+                className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
+              >
+                Create Centre
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
 

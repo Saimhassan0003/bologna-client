@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';import API_URL from '../config/api';import Navbar from '../components/Navbar';
+import axios from 'axios';
+import API_URL from '../config/api';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
 
@@ -12,8 +14,8 @@ const Apply = () => {
     fullName: '',
     certificateName: '',
     dob: '',
-    gender: 'Male',
-    
+    gender: '',
+
     // Step 2: Contact & Identification
     email: '',
     phone: '',
@@ -22,17 +24,18 @@ const Apply = () => {
     address: '',
 
     // Step 3: Academic Info
-    department: 'Level 5 Higher Diploma',
-    programme: 'Executive Diploma in Marketing',
-    intake: 'January 2026 - July 2026',
-    creditHours: '120 ECTS',
-    price: '3,000 EUR',
+    department: '',
+    programme: '',
+    intake: '',
+    creditHours: '',
+    price: '',
     highestQualification: '',
 
     // Step 4: Approved Centre Info
-    registrationViaCentre: 'No',
+    registrationViaCentre: '',
     centreEmail: '',
     centrePhone: '',
+    centreName: '',
   });
 
   // Files
@@ -47,99 +50,99 @@ const Apply = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const [departments, setDepartments] = useState([
-    'Level 5 Higher Diploma',
-    'Level 4 Executive Diploma',
-    'Level 7 Post Graduate Diploma',
-    'Level 2 Diploma'
-  ]);
-  const [programmes, setProgrammes] = useState([
-    'Executive Diploma in Marketing',
-    'Executive Diploma in Marketing Management',
-    'Executive Diploma in HRM',
-    'Executive Diploma in Human Capital Management',
-    'Executive Diploma in Supply Chain Management'
-  ]);
-  const [intakes, setIntakes] = useState([
-    'January 2026 - July 2026',
-    'February 2026 - August 2026',
-    'March 2026 - September 2026',
-    'April 2026 - October 2026',
-    'May 2026 - November 2026'
-  ]);
+  // Academic Options from DB
+  const [departments, setDepartments] = useState([]);
+  const [allProgrammes, setAllProgrammes] = useState([]); // [{department, programme, creditHours, price}]
+  const [allIntakes, setAllIntakes] = useState([]);       // [{department, programme, intake}]
+
+  // Centres list
+  const [centres, setCentres] = useState([]);
 
   useEffect(() => {
     const fetchAcademicOptions = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/options`);
         if (response.data) {
-          const { departments: dbDeps, programmes: dbProgs, intakes: dbInts } = response.data;
+          const { departments: dbDeps, programmes: dbProgs, intakes: dbIntakes } = response.data;
           if (dbDeps?.length > 0) setDepartments(dbDeps);
-          if (dbProgs?.length > 0) setProgrammes(dbProgs);
-          if (dbInts?.length > 0) setIntakes(dbInts);
-
-          const firstDept = dbDeps?.[0] || '';
-          // Find first programme for the first department
-          const firstProgObj = dbProgs?.find(p =>
-            p && typeof p === 'object' ? p.department === firstDept : false
-          );
-          const firstProg = firstProgObj
-            ? firstProgObj.programme
-            : (dbProgs?.[0] ? (typeof dbProgs[0] === 'object' ? dbProgs[0].programme : dbProgs[0]) : '');
-
-          setFormData(prev => ({
-            ...prev,
-            department: firstDept || prev.department,
-            programme: firstProg || prev.programme,
-            intake: ''
-          }));
+          if (dbProgs?.length > 0) setAllProgrammes(dbProgs);
+          if (dbIntakes?.length > 0) setAllIntakes(dbIntakes);
         }
       } catch (err) {
         console.error('Failed to load customizable academic options:', err);
       }
     };
+
+    const fetchCentres = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/centres/public`);
+        if (response.data) setCentres(response.data);
+      } catch (err) {
+        console.error('Failed to load centres:', err);
+      }
+    };
+
     fetchAcademicOptions();
+    fetchCentres();
   }, []);
 
-  // Filter programmes by selected department
-  const filteredProgrammes = programmes
-    .filter(p => {
-      if (p && typeof p === 'object') return p.department === formData.department;
-      return true; // fallback for plain strings
-    })
-    .map(p => (p && typeof p === 'object' ? p.programme : p))
+  // Filtered programmes based on selected department
+  const filteredProgrammes = allProgrammes
+    .filter(p => p.department === formData.department)
+    .map(p => p.programme)
     .filter(Boolean);
-
-  // Deduplicate filtered programmes
   const uniqueProgrammes = Array.from(new Set(filteredProgrammes));
 
-  const creditHoursOptions = [
-    '60 ECTS',
-    '120 ECTS',
-    '180 ECTS',
-    '240 ECTS',
-    '300 ECTS',
-  ];
-
-  const prices = [
-    '1,000 EUR',
-    '2,200 EUR',
-    '3,000 EUR',
-    '4,500 EUR',
-    '6,000 EUR',
-  ];
+  // Filtered intakes based on selected department + programme
+  const filteredIntakes = allIntakes
+    .filter(i => i.department === formData.department && i.programme === formData.programme)
+    .map(i => i.intake)
+    .filter(Boolean);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === 'department') {
-      // When department changes, reset programme to first matching one
-      const firstMatchingProg = programmes.find(p =>
-        p && typeof p === 'object' ? p.department === value : false
+      // Reset programme, intake, creditHours, price when department changes
+      setFormData(prev => ({
+        ...prev,
+        department: value,
+        programme: '',
+        intake: '',
+        creditHours: '',
+        price: ''
+      }));
+    } else if (name === 'programme') {
+      // Auto-fill creditHours and price from the matched programme object
+      const matched = allProgrammes.find(
+        p => p.department === formData.department && p.programme === value
       );
-      const newProg = firstMatchingProg
-        ? firstMatchingProg.programme
-        : '';
-      setFormData(prev => ({ ...prev, department: value, programme: newProg, intake: '' }));
+      setFormData(prev => ({
+        ...prev,
+        programme: value,
+        intake: '',
+        creditHours: matched?.creditHours || '',
+        price: matched?.price || ''
+      }));
+    } else if (name === 'intake') {
+      setFormData(prev => ({ ...prev, intake: value }));
+    } else if (name === 'registrationViaCentre') {
+      setFormData(prev => ({
+        ...prev,
+        registrationViaCentre: value,
+        centreEmail: '',
+        centrePhone: '',
+        centreName: ''
+      }));
+    } else if (name === 'centreName') {
+      // Auto-fill centreEmail and centrePhone from centres list
+      const matched = centres.find(c => c.name === value);
+      setFormData(prev => ({
+        ...prev,
+        centreName: value,
+        centreEmail: matched?.email || '',
+        centrePhone: matched?.phone || ''
+      }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -158,9 +161,8 @@ const Apply = () => {
 
   const nextStep = () => {
     setErrorMsg('');
-    // Simple validation per step
     if (step === 1) {
-      if (!formData.fullName || !formData.certificateName || !formData.dob) {
+      if (!formData.fullName || !formData.certificateName || !formData.dob || !formData.gender) {
         setErrorMsg('Please fill out all required fields.');
         return;
       }
@@ -172,14 +174,18 @@ const Apply = () => {
       }
     }
     if (step === 3) {
-      if (!formData.highestQualification) {
-        setErrorMsg('Please specify your highest qualification.');
+      if (!formData.department || !formData.programme || !formData.intake || !formData.highestQualification) {
+        setErrorMsg('Please select your department, programme, intake, and highest qualification.');
         return;
       }
     }
     if (step === 4) {
-      if (formData.registrationViaCentre === 'Yes' && (!formData.centreEmail || !formData.centrePhone)) {
-        setErrorMsg('Please fill out the Approved Centre details.');
+      if (!formData.registrationViaCentre) {
+        setErrorMsg('Please indicate if you are registering via an Approved Centre.');
+        return;
+      }
+      if (formData.registrationViaCentre === 'Yes' && (!formData.centreName || !formData.centreEmail)) {
+        setErrorMsg('Please select an Approved Centre.');
         return;
       }
     }
@@ -203,11 +209,9 @@ const Apply = () => {
     }
 
     const data = new FormData();
-    // Append fields
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
-    // Append files
     data.append('profilePicture', profilePicture);
     data.append('passportCopy', passportCopy);
     data.append('resume', resume);
@@ -217,9 +221,7 @@ const Apply = () => {
 
     try {
       await axios.post(`${API_URL}/api/applications`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       setIsSuccess(true);
       setTimeout(() => {
@@ -233,23 +235,22 @@ const Apply = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Navbar />
-      
+
       <main className="flex-grow py-6 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Decorative Skewed Banner */}
         <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-uniboRed transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
 
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-10 relative">
-          
+
           {/* Header */}
           <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-uniboRed flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="bg-white rounded-lg p-1.5 sm:p-2 h-12 sm:h-18 flex items-center justify-center shadow-lg border border-gray-800">
+              <Link to="/" className="bg-white rounded-lg p-1.5 sm:p-2 h-12 sm:h-18 flex items-center justify-center shadow-lg border border-gray-800 hover:scale-105 transition-transform duration-350 cursor-pointer">
                 <img src={logo} alt="Institute Bologna Logo" className="h-10 sm:h-14 w-auto object-contain" />
-              </div>
+              </Link>
               <div>
                 <h2 className="text-lg sm:text-2xl font-serif font-bold tracking-wide">Institute Bologna</h2>
                 <p className="text-gray-400 text-xs mt-0.5">Academic Admission Application Portal</p>
@@ -262,8 +263,8 @@ const Apply = () => {
 
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2">
-            <div 
-              className="bg-uniboRed h-2 transition-all duration-500 ease-out" 
+            <div
+              className="bg-uniboRed h-2 transition-all duration-500 ease-out"
               style={{ width: `${(step / 5) * 100}%` }}
             ></div>
           </div>
@@ -318,7 +319,7 @@ const Apply = () => {
                           placeholder="e.g. Leonardo da Vinci"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           Name to be printed on the certificate <span className="text-uniboRed">*</span>
@@ -359,6 +360,7 @@ const Apply = () => {
                             onChange={handleChange}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
+                            <option value="">-- Select Gender --</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Prefer Not to Say">Prefer Not to Say</option>
@@ -376,7 +378,7 @@ const Apply = () => {
                 {step === 2 && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg sm:text-xl font-serif font-bold text-gray-900 mb-2">Step 2: Contact & Identification</h3>
+                      <h3 className="text-lg sm:text-xl font-serif font-bold text-gray-900 mb-2">Step 2: Contact &amp; Identification</h3>
                       <p className="text-xs sm:text-sm text-gray-500">Please provide verified contact details so that our registry can reach you.</p>
                     </div>
 
@@ -464,10 +466,11 @@ const Apply = () => {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg sm:text-xl font-serif font-bold text-gray-900 mb-2">Step 3: Academic Information</h3>
-                      <p className="text-xs sm:text-sm text-gray-500">Specify your desired program of study and academic qualification.</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Select your desired department, programme and intake. Credit hours and price will be filled automatically.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Department */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           Department <span className="text-uniboRed">*</span>
@@ -479,6 +482,7 @@ const Apply = () => {
                             onChange={handleChange}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
+                            <option value="">-- Select Department --</option>
                             {departments.map((d) => (
                               <option key={d} value={d}>{d}</option>
                             ))}
@@ -489,6 +493,7 @@ const Apply = () => {
                         </div>
                       </div>
 
+                      {/* Programme */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           Programme <span className="text-uniboRed">*</span>
@@ -498,11 +503,13 @@ const Apply = () => {
                             name="programme"
                             value={formData.programme}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
+                            disabled={!formData.department}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                           >
+                            <option value="">-- Select Programme --</option>
                             {uniqueProgrammes.map((p) => (
-                               <option key={p} value={p}>{p}</option>
-                             ))}
+                              <option key={p} value={p}>{p}</option>
+                            ))}
                           </select>
                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                             <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -510,61 +517,62 @@ const Apply = () => {
                         </div>
                       </div>
 
+                      {/* Intake */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           Intake <span className="text-uniboRed">*</span>
                         </label>
-                        <input
-                          type="text"
-                          name="intake"
-                          value={formData.intake}
-                          onChange={handleChange}
-                          placeholder="e.g. January 2026 - July 2026"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none font-medium"
-                        />
+                        <div className="relative">
+                          <select
+                            name="intake"
+                            value={formData.intake}
+                            onChange={handleChange}
+                            disabled={!formData.programme}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            <option value="">-- Select Intake --</option>
+                            {filteredIntakes.map((intake) => (
+                              <option key={intake} value={intake}>{intake}</option>
+                            ))}
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
                       </div>
 
+                      {/* Credit Hours & Price — auto-filled read-only */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Credit Hours <span className="text-uniboRed">*</span>
+                            Credit Hours
                           </label>
-                          <div className="relative">
-                            <select
-                              name="creditHours"
-                              value={formData.creditHours}
-                              onChange={handleChange}
-                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
-                            >
-                              {creditHoursOptions.map((c) => (
-                                <option key={c} value={c}>{c}</option>
-                              ))}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                            </div>
-                          </div>
+                          <input
+                            type="text"
+                            name="creditHours"
+                            value={formData.creditHours}
+                            readOnly
+                            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
+                            placeholder="Auto-filled"
+                          />
                         </div>
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Price <span className="text-uniboRed">*</span>
+                            Price
                           </label>
-                          <div className="relative">
-                            <select
-                              name="price"
-                              value={formData.price}
-                              onChange={handleChange}
-                              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
-                            >
-                              {prices.map((p) => (
-                                <option key={p} value={p}>{p}</option>
-                              ))}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                            </div>
-                          </div>
+                          <input
+                            type="text"
+                            name="price"
+                            value={formData.price}
+                            readOnly
+                            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
+                            placeholder="Auto-filled"
+                          />
                         </div>
+                      </div>
+
+                      <div className="md:col-span-2 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-xs sm:text-sm text-gray-600">
+                        Credit hours and price are automatically filled from the selected programme.
                       </div>
 
                       <div className="md:col-span-2">
@@ -600,9 +608,9 @@ const Apply = () => {
                         </label>
                         <div className="flex gap-6">
                           <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-800">
-                            <input 
-                              type="radio" 
-                              name="registrationViaCentre" 
+                            <input
+                              type="radio"
+                              name="registrationViaCentre"
                               value="Yes"
                               checked={formData.registrationViaCentre === 'Yes'}
                               onChange={handleChange}
@@ -611,9 +619,9 @@ const Apply = () => {
                             Yes
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-800">
-                            <input 
-                              type="radio" 
-                              name="registrationViaCentre" 
+                            <input
+                              type="radio"
+                              name="registrationViaCentre"
                               value="No"
                               checked={formData.registrationViaCentre === 'No'}
                               onChange={handleChange}
@@ -626,33 +634,59 @@ const Apply = () => {
 
                       {formData.registrationViaCentre === 'Yes' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl border border-gray-200 animate-fade-in-up">
+                          {/* Centre Name Dropdown */}
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                              Select Approved Centre <span className="text-uniboRed">*</span>
+                            </label>
+                            <div className="relative">
+                              <select
+                                name="centreName"
+                                value={formData.centreName}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none appearance-none font-medium"
+                              >
+                                <option value="">-- Select a Centre --</option>
+                                {centres.map((c) => (
+                                  <option key={c._id} value={c.name}>{c.name}</option>
+                                ))}
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                              </div>
+                            </div>
+                            {centres.length === 0 && (
+                              <p className="text-xs text-amber-600 mt-1 font-medium">No approved centres available. Please contact the institution.</p>
+                            )}
+                          </div>
+
+                          {/* Centre Email (auto-filled, read-only) */}
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                              Approved Centre’s Email <span className="text-uniboRed">*</span>
+                              Centre Email
                             </label>
                             <input
                               type="email"
                               name="centreEmail"
-                              required={formData.registrationViaCentre === 'Yes'}
                               value={formData.centreEmail}
-                              onChange={handleChange}
-                              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none"
-                              placeholder="centre@unibo-partner.it"
+                              readOnly
+                              className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
+                              placeholder="Auto-filled from selected centre"
                             />
                           </div>
 
+                          {/* Centre Phone (auto-filled, read-only) */}
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">
-                              Approved Centre’s Contact Number <span className="text-uniboRed">*</span>
+                              Centre Contact Number
                             </label>
                             <input
                               type="tel"
                               name="centrePhone"
-                              required={formData.registrationViaCentre === 'Yes'}
                               value={formData.centrePhone}
-                              onChange={handleChange}
-                              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none"
-                              placeholder="+39 051 209 0000"
+                              readOnly
+                              className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
+                              placeholder="Auto-filled from selected centre"
                             />
                           </div>
                         </div>
@@ -670,16 +704,16 @@ const Apply = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
+
                       {/* 1. Profile Picture */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture <span className="text-uniboRed">*</span></label>
-                        <input 
-                          type="file" 
-                          name="profilePicture" 
-                          accept="image/*" 
-                          required 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="profilePicture"
+                          accept="image/*"
+                          required
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {profilePicture && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {profilePicture.name}</p>}
@@ -688,12 +722,12 @@ const Apply = () => {
                       {/* 2. Passport Copy */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport <span className="text-uniboRed">*</span></label>
-                        <input 
-                          type="file" 
-                          name="passportCopy" 
-                          accept="image/*,application/pdf" 
-                          required 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="passportCopy"
+                          accept="image/*,application/pdf"
+                          required
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {passportCopy && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {passportCopy.name}</p>}
@@ -702,12 +736,12 @@ const Apply = () => {
                       {/* 3. Resume */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV <span className="text-uniboRed">*</span></label>
-                        <input 
-                          type="file" 
-                          name="resume" 
-                          accept=".pdf,.doc,.docx" 
-                          required 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="resume"
+                          accept=".pdf,.doc,.docx"
+                          required
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {resume && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {resume.name}</p>}
@@ -716,12 +750,12 @@ const Apply = () => {
                       {/* 4. Transcript 1 */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Certified Certificate/Transcript 1 <span className="text-uniboRed">*</span></label>
-                        <input 
-                          type="file" 
-                          name="transcript1" 
-                          accept="image/*,application/pdf,.doc,.docx" 
-                          required 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="transcript1"
+                          accept="image/*,application/pdf,.doc,.docx"
+                          required
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {transcript1 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript1.name}</p>}
@@ -730,11 +764,11 @@ const Apply = () => {
                       {/* 5. Transcript 2 */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Certified Certificate/Transcript 2 (Optional)</label>
-                        <input 
-                          type="file" 
-                          name="transcript2" 
-                          accept="image/*,application/pdf,.doc,.docx" 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="transcript2"
+                          accept="image/*,application/pdf,.doc,.docx"
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {transcript2 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript2.name}</p>}
@@ -743,11 +777,11 @@ const Apply = () => {
                       {/* 6. Transcript 3 */}
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Certified Certificate/Transcript 3 (Optional)</label>
-                        <input 
-                          type="file" 
-                          name="transcript3" 
-                          accept="image/*,application/pdf,.doc,.docx" 
-                          onChange={handleFileChange} 
+                        <input
+                          type="file"
+                          name="transcript3"
+                          accept="image/*,application/pdf,.doc,.docx"
+                          onChange={handleFileChange}
                           className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                         />
                         {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
@@ -798,7 +832,7 @@ const Apply = () => {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

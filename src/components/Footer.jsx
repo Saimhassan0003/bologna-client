@@ -8,6 +8,9 @@ const Footer = () => {
           <p className="text-xs sm:text-sm text-red-200 font-medium text-center">
             Copyright © {new Date().getFullYear()} Institute Bologna. All rights reserved.
           </p>
+          <p className="text-[11px] sm:text-xs text-red-300 font-semibold tracking-wider uppercase opacity-80 hover:opacity-100 transition-opacity">
+            Developed by <span className="text-white font-bold">skillware4u</span>
+          </p>
         </div>
       </div>
     </footer>

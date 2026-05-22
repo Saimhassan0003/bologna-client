@@ -45,7 +45,7 @@ const Login = () => {
         </div>
         <div className="relative z-10 w-full flex flex-col justify-between p-12 lg:p-24">
           <div className="bg-white p-3 rounded-xl shadow-xl inline-block border border-gray-100 max-w-fit">
-            <Link to="/" className="inline-flex items-center">
+            <Link to="/" className="inline-flex items-center hover:scale-105 transition-transform duration-350 cursor-pointer">
               <img src={logo} alt="Institute Bologna" className="h-24 w-auto object-contain" />
             </Link>
           </div>
@@ -68,7 +68,7 @@ const Login = () => {
 
         <div className="max-w-md w-full z-10">
           <div className="lg:hidden mb-8 sm:mb-12 flex justify-center">
-            <Link to="/" className="inline-flex items-center bg-white p-3 rounded-xl shadow-md border border-gray-100">
+            <Link to="/" className="inline-flex items-center bg-white p-3 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-transform duration-350 cursor-pointer">
               <img src={logo} alt="Institute Bologna" className="h-16 sm:h-20 w-auto object-contain" />
             </Link>
           </div>
