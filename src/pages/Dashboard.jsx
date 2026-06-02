@@ -14,6 +14,28 @@ const Dashboard = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Filter States for Application List
+  const [submissionFilter, setSubmissionFilter] = useState('all'); // 'all', 'direct', 'centre'
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
+  const [selectedProgFilter, setSelectedProgFilter] = useState('all');
+  const [selectedCentreNameFilter, setSelectedCentreNameFilter] = useState('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
+
+  // Configurator Filter States
+  const [searchDeptQuery, setSearchDeptQuery] = useState('');
+  const [filterDeptForProgTable, setFilterDeptForProgTable] = useState('all');
+  const [searchProgQuery, setSearchProgQuery] = useState('');
+
+  const filteredApplications = applications.filter((app) => {
+    if (submissionFilter === 'direct' && app.registrationViaCentre === 'Yes') return false;
+    if (submissionFilter === 'centre' && app.registrationViaCentre !== 'Yes') return false;
+    if (selectedDeptFilter !== 'all' && app.department !== selectedDeptFilter) return false;
+    if (selectedProgFilter !== 'all' && app.programme !== selectedProgFilter) return false;
+    if (selectedCentreNameFilter !== 'all' && (app.registrationViaCentre !== 'Yes' || app.centreName !== selectedCentreNameFilter)) return false;
+    if (selectedStatusFilter !== 'all' && app.status !== selectedStatusFilter) return false;
+    return true;
+  });
+
   // Dynamic Academic Customization States
   const [departments, setDepartments] = useState([]);
   const [programmes, setProgrammes] = useState([]);
@@ -21,6 +43,7 @@ const Dashboard = () => {
 
   // Centres States
   const [centres, setCentres] = useState([]);
+  const [selectedCentreForSubmissions, setSelectedCentreForSubmissions] = useState(null);
   const [newCentreName, setNewCentreName] = useState('');
   const [newCentreEmail, setNewCentreEmail] = useState('');
   const [newCentrePhone, setNewCentrePhone] = useState('');
@@ -30,12 +53,22 @@ const Dashboard = () => {
   const [editingCentreEmail, setEditingCentreEmail] = useState('');
   const [editingCentrePhone, setEditingCentrePhone] = useState('');
   const [centreError, setCentreError] = useState('');
+  const [expandedCentres, setExpandedCentres] = useState({});
+
+  const toggleCentreExpand = (id) => {
+    setExpandedCentres(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
 
   const [newDepartment, setNewDepartment] = useState('');
   const [newProgramme, setNewProgramme] = useState('');
   const [newCreditHours, setNewCreditHours] = useState('');
   const [newPrice, setNewPrice] = useState('');
+  const [newCourseStartDate, setNewCourseStartDate] = useState('');
+  const [newCourseEndDate, setNewCourseEndDate] = useState('');
   const [newIntake, setNewIntake] = useState('');
   const [newDeptProgrammes, setNewDeptProgrammes] = useState('');
 
@@ -57,6 +90,8 @@ const Dashboard = () => {
   const [editingProgVal, setEditingProgVal] = useState('');
   const [editingProgCredits, setEditingProgCredits] = useState('');
   const [editingProgPrice, setEditingProgPrice] = useState('');
+  const [editingProgStartDate, setEditingProgStartDate] = useState('');
+  const [editingProgEndDate, setEditingProgEndDate] = useState('');
 
   const [editingIntkIdx, setEditingIntkIdx] = useState(null);
   const [editingIntkVal, setEditingIntkVal] = useState('');
@@ -64,12 +99,18 @@ const Dashboard = () => {
   const [savingOptions, setSavingOptions] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [updatingAppId, setUpdatingAppId] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   useEffect(() => {
     fetchApplications();
     fetchAcademicOptions();
     fetchCentres();
   }, []);
+  
+  useEffect(() => {
+    setSelectedCentreForSubmissions(null);
+  }, [activeTab]);
 
 
   // Sync default options select dropdown values
@@ -229,40 +270,41 @@ const Dashboard = () => {
     setDepartments(updatedDeps);
     setNewDepartment('');
 
-    // Parse programmes entered (comma separated)
-    let updatedProgs = [...programmes];
-    if (newDeptProgrammes.trim()) {
-      const parsedProgs = newDeptProgrammes
-        .split(',')
-        .map(p => p.trim())
-        .filter(Boolean);
-      
-      parsedProgs.forEach(progName => {
-        const isDuplicate = updatedProgs.some(p => 
-          p && typeof p === 'object'
-            ? (p.department === deptName && p.programme.toLowerCase() === progName.toLowerCase())
-            : p.toLowerCase() === progName.toLowerCase()
-        );
-        if (!isDuplicate) {
-          updatedProgs.push({ department: deptName, programme: progName });
-        }
-      });
-      setProgrammes(updatedProgs);
-      setNewDeptProgrammes('');
-    }
-
-    await saveToDatabase(updatedDeps, updatedProgs, intakes);
+    await saveToDatabase(updatedDeps, programmes, intakes);
     setShowAddDeptModal(false);
   };
 
   const removeDepartment = async (index) => {
+    const deptName = departments[index];
+    
+    // Check if any student applications are using this programme
+    const hasApps = applications.some(app => app.department === deptName);
+    if (hasApps) {
+      alert(`Cannot delete "${deptName}" because there are student applications registered under it.`);
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete the programme "${deptName}"? This will also remove its associated courses.`)) {
+      return;
+    }
+
     const updated = departments.filter((_, i) => i !== index);
+    const updatedProgs = programmes.filter(p => p && typeof p === 'object' ? p.department !== deptName : true);
+    
     setDepartments(updated);
-    await saveToDatabase(updated, programmes, intakes);
+    setProgrammes(updatedProgs);
+    await saveToDatabase(updated, updatedProgs, intakes);
   };
 
   const removeSpecificProgramme = async (dept, progName) => {
-    if (!window.confirm(`Are you sure you want to delete the programme "${progName}" from department "${dept}"?`)) {
+    // Check if any student applications are using this course
+    const hasApps = applications.some(app => app.programme === progName);
+    if (hasApps) {
+      alert(`Cannot delete the course "${progName}" because there are student applications registered under it.`);
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete the course "${progName}" from programme "${dept}"?`)) {
       return;
     }
     const updatedProgs = programmes.filter(p => {
@@ -288,7 +330,7 @@ const Dashboard = () => {
     if (!newProgramme.trim()) return;
     const dept = selectedDeptForProg || departments[0] || 'Level 5 Higher Diploma';
 
-    const isDuplicate = programmes.some(p => 
+    const isDuplicate = programmes.some(p =>
       p && typeof p === 'object'
         ? (p.department === dept && p.programme.toLowerCase() === newProgramme.trim().toLowerCase())
         : p.toLowerCase() === newProgramme.trim().toLowerCase()
@@ -298,18 +340,41 @@ const Dashboard = () => {
       return;
     }
 
-    const newProgObj = { department: dept, programme: newProgramme.trim(), creditHours: newCreditHours.trim(), price: newPrice.trim() };
+    const newProgObj = {
+      department: dept,
+      programme: newProgramme.trim(),
+      creditHours: newCreditHours.trim(),
+      price: newPrice.trim(),
+      courseStartDate: newCourseStartDate.trim(),
+      courseEndDate: newCourseEndDate.trim()
+    };
     const updated = [...programmes, newProgObj];
     setProgrammes(updated);
     setNewProgramme('');
     setNewCreditHours('');
     setNewPrice('');
+    setNewCourseStartDate('');
+    setNewCourseEndDate('');
     await saveToDatabase(departments, updated, intakes);
     setShowAddProgModal(false);
   };
 
 
   const removeProgramme = async (index) => {
+    const progItem = programmes[index];
+    const progName = typeof progItem === 'object' && progItem !== null ? progItem.programme : progItem;
+
+    // Check if any student applications are using this course
+    const hasApps = applications.some(app => app.programme === progName);
+    if (hasApps) {
+      alert(`Cannot delete the course "${progName}" because there are student applications registered under it.`);
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete the course "${progName}"?`)) {
+      return;
+    }
+
     const updated = programmes.filter((_, i) => i !== index);
     setProgrammes(updated);
     await saveToDatabase(departments, updated, intakes);
@@ -324,14 +389,18 @@ const Dashboard = () => {
         ...current,
         programme: editingProgVal.trim(),
         creditHours: editingProgCredits.trim(),
-        price: editingProgPrice.trim()
+        price: editingProgPrice.trim(),
+        courseStartDate: editingProgStartDate.trim(),
+        courseEndDate: editingProgEndDate.trim()
       };
     } else {
       updated[index] = {
         department: departments[0] || 'Level 5 Higher Diploma',
         programme: editingProgVal.trim(),
         creditHours: editingProgCredits.trim(),
-        price: editingProgPrice.trim()
+        price: editingProgPrice.trim(),
+        courseStartDate: editingProgStartDate.trim(),
+        courseEndDate: editingProgEndDate.trim()
       };
     }
     setProgrammes(updated);
@@ -349,7 +418,7 @@ const Dashboard = () => {
     }
 
     // Check for exact matching duplicates
-    const duplicate = intakes.some(item => 
+    const duplicate = intakes.some(item =>
       typeof item === 'object' && item !== null &&
       item.department === dept &&
       item.programme === prog &&
@@ -421,13 +490,13 @@ const Dashboard = () => {
   const handleStatusChange = async (id, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`${API_URL}/api/applications/${id}/status`, 
+      await axios.patch(`${API_URL}/api/applications/${id}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       // Update local state
-      setApplications(applications.map(app => 
+      setApplications(applications.map(app =>
         app._id === id ? { ...app, status: newStatus } : app
       ));
 
@@ -435,15 +504,72 @@ const Dashboard = () => {
       if (selectedApp && selectedApp._id === id) {
         setSelectedApp({ ...selectedApp, status: newStatus });
       }
+
+      // Display a beautiful floating notification
+      const candidate = applications.find(app => app._id === id);
+      const candidateName = candidate ? candidate.fullName : 'Applicant';
+      setNotification({
+        message: `Successfully updated ${candidateName}'s application status to "${newStatus}"!`,
+        type: 'success'
+      });
+      setTimeout(() => setNotification(null), 4000);
+
     } catch (error) {
       console.error('Error updating status:', error);
-      alert('Failed to update status');
+      setNotification({
+        message: error.response?.data?.message || 'Failed to update application status.',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 4000);
     }
+  };
+
+  const exportToCSV = () => {
+    if (filteredApplications.length === 0) return;
+    
+    // Headers: Name, Email, Contact Number, Country, Program, Course
+    const headers = ['Name', 'Email', 'Contact Number', 'Country', 'Program', 'Course'];
+    const rows = filteredApplications.map(app => [
+      app.fullName,
+      app.email,
+      app.phone,
+      app.country,
+      app.department,
+      app.programme
+    ]);
+
+    // Construct CSV Content with proper escape strings
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    // Trigger file download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `applications_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Show success toast
+    setNotification({
+      message: `Successfully exported ${filteredApplications.length} application(s) to CSV!`,
+      type: 'success'
+    });
+    setTimeout(() => setNotification(null), 4000);
   };
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const viewCentreSubmissions = (centreName) => {
+    setSelectedCentreForSubmissions(centreName);
   };
 
   const getStatusColor = (status) => {
@@ -471,10 +597,39 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
-      
+      {/* Floating Toast Notification */}
+      {notification && (
+        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-[100] w-full max-w-md px-4 animate-fade-in-down">
+          <div className={`p-4 rounded-xl border shadow-xl flex items-center justify-between gap-4 backdrop-blur-md ${
+            notification.type === 'success' 
+              ? 'bg-green-50/95 border-green-200 text-green-800' 
+              : 'bg-red-50/95 border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className={`p-1.5 rounded-lg ${
+                notification.type === 'success' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+              }`}>
+                {notification.type === 'success' ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                )}
+              </span>
+              <p className="text-xs font-bold leading-normal">{notification.message}</p>
+            </div>
+            <button
+              onClick={() => setNotification(null)}
+              className="text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* SIDEBAR */}
       <aside className="w-64 bg-gray-900 text-white flex flex-col justify-between shrink-0 hidden md:flex border-r border-gray-800">
-        
+
         {/* Sidebar Header / Branding */}
         <div>
           <div className="p-5 border-b border-gray-800 flex items-center gap-3">
@@ -491,11 +646,10 @@ const Dashboard = () => {
           <nav className="p-4 space-y-2">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'overview' 
-                  ? 'bg-uniboRed text-white shadow-md' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'overview'
+                ? 'bg-uniboRed text-white shadow-md'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
               Dashboard Overview
@@ -503,11 +657,10 @@ const Dashboard = () => {
 
             <button
               onClick={() => setActiveTab('applications')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'applications' 
-                  ? 'bg-uniboRed text-white shadow-md' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'applications'
+                ? 'bg-uniboRed text-white shadow-md'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
               Applications List
@@ -520,52 +673,48 @@ const Dashboard = () => {
 
             <button
               onClick={() => setActiveTab('departments')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'departments' 
-                  ? 'bg-uniboRed text-white shadow-md' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'departments'
+                ? 'bg-uniboRed text-white shadow-md'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-              Departments
-            </button>
-
-            <button
-              onClick={() => setActiveTab('programmes')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'programmes' 
-                  ? 'bg-uniboRed text-white shadow-md' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
               Programmes
             </button>
 
             <button
+              onClick={() => setActiveTab('programmes')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'programmes'
+                ? 'bg-uniboRed text-white shadow-md'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+              Courses
+            </button>
+
+            {/* <button
               onClick={() => setActiveTab('intakes')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'intakes' 
-                  ? 'bg-uniboRed text-white shadow-md' 
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'intakes'
+                  ? 'bg-uniboRed text-white shadow-md'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+                }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               Intakes
-            </button>
+            </button> */}
 
             <button
               onClick={() => setActiveTab('centres')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'centres' 
-                  ? 'bg-uniboRed text-white shadow-md' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'centres'
+                ? 'bg-uniboRed text-white shadow-md'
+                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
               Approved Centres
               {centres.length > 0 && (
-                <span className="ml-auto bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="ml-auto bg-amber-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {centres.length}
                 </span>
               )}
@@ -606,7 +755,7 @@ const Dashboard = () => {
 
       {/* MAIN LAYOUT CONTENT */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        
+
         {/* TOP HEADER */}
         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shrink-0 z-20">
           <div className="flex items-center gap-2 md:hidden">
@@ -626,8 +775,8 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             {/* Mobile Actions */}
             <div className="md:hidden flex items-center gap-2">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="px-2.5 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-md hover:bg-gray-200 flex items-center gap-1"
               >
                 Home
@@ -644,7 +793,7 @@ const Dashboard = () => {
 
         {/* SCROLLABLE VIEWPORT */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-50">
-          
+
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-8 animate-fade-in">
@@ -655,7 +804,7 @@ const Dashboard = () => {
 
               {/* Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
+
                 <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                   <div className="p-3 bg-gray-100 rounded-lg text-gray-700">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -700,7 +849,7 @@ const Dashboard = () => {
 
               {/* Academic Highlights & Charts Block */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm lg:col-span-2">
                   <h3 className="text-lg font-bold font-serif text-gray-900 mb-4">Admissions Progression</h3>
                   <div className="space-y-4">
@@ -710,8 +859,8 @@ const Dashboard = () => {
                         <span className="text-gray-900">{totalApps > 0 ? Math.round(((totalApps - pendingApps) / totalApps) * 100) : 0}%</span>
                       </div>
                       <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-uniboRed h-full transition-all duration-500" 
+                        <div
+                          className="bg-uniboRed h-full transition-all duration-500"
                           style={{ width: `${totalApps > 0 ? ((totalApps - pendingApps) / totalApps) * 100 : 0}%` }}
                         ></div>
                       </div>
@@ -723,8 +872,8 @@ const Dashboard = () => {
                         <span className="text-gray-900">{totalApps > 0 ? Math.round((acceptedApps / totalApps) * 100) : 0}%</span>
                       </div>
                       <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-green-600 h-full transition-all duration-500" 
+                        <div
+                          className="bg-green-600 h-full transition-all duration-500"
                           style={{ width: `${totalApps > 0 ? (acceptedApps / totalApps) * 100 : 0}%` }}
                         ></div>
                       </div>
@@ -757,6 +906,197 @@ const Dashboard = () => {
                 </div>
               </div>
 
+              {/* CARD FILTER BUTTONS */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {/* Card 1: All Applications */}
+                <button
+                  onClick={() => setSubmissionFilter('all')}
+                  className={`p-5 rounded-xl border text-left transition-all duration-350 cursor-pointer ${
+                    submissionFilter === 'all'
+                      ? 'bg-gray-900 text-white shadow-lg border-gray-900 scale-[1.02]'
+                      : 'bg-white text-gray-800 border-gray-200 hover:shadow-md hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className={`p-2 rounded-lg ${submissionFilter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </span>
+                    <span className={`text-2xl font-extrabold ${submissionFilter === 'all' ? 'text-white' : 'text-gray-950'}`}>
+                      {applications.length}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-bold tracking-wide uppercase">All Applications</h3>
+                    <p className={`text-xs mt-1 ${submissionFilter === 'all' ? 'text-gray-300' : 'text-gray-500'}`}>Total directory submissions</p>
+                  </div>
+                </button>
+
+                {/* Card 2: Direct Applications */}
+                <button
+                  onClick={() => setSubmissionFilter('direct')}
+                  className={`p-5 rounded-xl border text-left transition-all duration-350 cursor-pointer ${
+                    submissionFilter === 'direct'
+                      ? 'bg-uniboRed text-white shadow-lg border-uniboRed scale-[1.02]'
+                      : 'bg-white text-gray-800 border-gray-200 hover:shadow-md hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className={`p-2 rounded-lg ${submissionFilter === 'direct' ? 'bg-red-800 text-white' : 'bg-red-50 text-uniboRed'}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </span>
+                    <span className={`text-2xl font-extrabold ${submissionFilter === 'direct' ? 'text-white' : 'text-gray-950'}`}>
+                      {applications.filter(app => app.registrationViaCentre !== 'Yes').length}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-bold tracking-wide uppercase">Direct Submissions</h3>
+                    <p className={`text-xs mt-1 ${submissionFilter === 'direct' ? 'text-gray-200' : 'text-gray-500'}`}>Submitted directly by students</p>
+                  </div>
+                </button>
+
+                {/* Card 3: Approved Centre Applications */}
+                <button
+                  onClick={() => setSubmissionFilter('centre')}
+                  className={`p-5 rounded-xl border text-left transition-all duration-350 cursor-pointer ${
+                    submissionFilter === 'centre'
+                      ? 'bg-amber-700 text-white shadow-lg border-amber-700 scale-[1.02]'
+                      : 'bg-white text-gray-800 border-gray-200 hover:shadow-md hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className={`p-2 rounded-lg ${submissionFilter === 'centre' ? 'bg-amber-900 text-white' : 'bg-amber-50 text-amber-700'}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </span>
+                    <span className={`text-2xl font-extrabold ${submissionFilter === 'centre' ? 'text-white' : 'text-gray-950'}`}>
+                      {applications.filter(app => app.registrationViaCentre === 'Yes').length}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-bold tracking-wide uppercase">Via Approved Centres</h3>
+                    <p className={`text-xs mt-1 ${submissionFilter === 'centre' ? 'text-gray-200' : 'text-gray-500'}`}>Submitted via authorized centres</p>
+                  </div>
+                </button>
+              </div>
+
+              {/* SELECT FILTERS BAR */}
+              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                  {/* Programme Filter (Department level) */}
+                  <div className="flex flex-col gap-1 w-full sm:w-64">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Filter by Programme</label>
+                    <select
+                      value={selectedDeptFilter}
+                      onChange={(e) => {
+                        setSelectedDeptFilter(e.target.value);
+                        setSelectedProgFilter('all');
+                      }}
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">All Programmes</option>
+                      {departments.map((dept, index) => (
+                        <option key={index} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Course Filter (Programme level) */}
+                  <div className="flex flex-col gap-1 w-full sm:w-64">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Filter by Course</label>
+                    <select
+                      value={selectedProgFilter}
+                      onChange={(e) => setSelectedProgFilter(e.target.value)}
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">All Courses</option>
+                      {programmes
+                        .filter(p => {
+                          if (selectedDeptFilter === 'all') return true;
+                          return typeof p === 'object' && p !== null ? p.department === selectedDeptFilter : false;
+                        })
+                        .map(p => typeof p === 'object' && p !== null ? p.programme : p)
+                        .filter((value, index, self) => self.indexOf(value) === index)
+                        .map((progName, index) => (
+                          <option key={index} value={progName}>{progName}</option>
+                        ))
+                      }
+                    </select>
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="flex flex-col gap-1 w-full sm:w-64">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Filter by Status</label>
+                    <select
+                      value={selectedStatusFilter}
+                      onChange={(e) => setSelectedStatusFilter(e.target.value)}
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Reviewed">Reviewed</option>
+                      <option value="Accepted">Accepted</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* Specific Approved Centre Filter (visible only when submissionFilter === 'centre') */}
+                  {submissionFilter === 'centre' && (
+                    <div className="flex flex-col gap-1 w-full sm:w-64 animate-fade-in">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Approved Centre</label>
+                      <select
+                        value={selectedCentreNameFilter}
+                        onChange={(e) => setSelectedCentreNameFilter(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                      >
+                        <option value="all">All Centres</option>
+                        {centres.map((centre) => (
+                          <option key={centre._id} value={centre.name}>{centre.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* CSV Export & Clear Filter Controls */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto justify-end">
+                  {/* CSV Export Button */}
+                  <button
+                    onClick={exportToCSV}
+                    disabled={filteredApplications.length === 0}
+                    className="w-full md:w-auto px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold uppercase rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export CSV
+                  </button>
+
+                  {/* Clear Filter Button */}
+                  {(submissionFilter !== 'all' || selectedDeptFilter !== 'all' || selectedProgFilter !== 'all' || selectedCentreNameFilter !== 'all' || selectedStatusFilter !== 'all') && (
+                    <button
+                      onClick={() => {
+                        setSubmissionFilter('all');
+                        setSelectedDeptFilter('all');
+                        setSelectedProgFilter('all');
+                        setSelectedCentreNameFilter('all');
+                        setSelectedStatusFilter('all');
+                      }}
+                      className="w-full md:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-bold border border-gray-200"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear Filters
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Table section inside scroll viewport */}
               <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
                 {loading ? (
@@ -766,6 +1106,24 @@ const Dashboard = () => {
                 ) : applications.length === 0 ? (
                   <div className="p-10 text-center text-gray-500 font-medium">
                     No student submissions found.
+                  </div>
+                ) : filteredApplications.length === 0 ? (
+                  <div className="p-12 text-center text-gray-500">
+                    <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-base font-bold text-gray-700">No matching applications</p>
+                    <p className="text-xs text-gray-400 mt-1 mb-4">No submissions match the selected filters.</p>
+                    <button
+                      onClick={() => {
+                        setSubmissionFilter('all');
+                        setSelectedDeptFilter('all');
+                        setSelectedProgFilter('all');
+                      }}
+                      className="px-4 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors inline-flex items-center gap-1 shadow-sm cursor-pointer"
+                    >
+                      Reset Filters
+                    </button>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -793,13 +1151,13 @@ const Dashboard = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {applications.map((app) => (
+                        {filteredApplications.map((app) => (
                           <tr key={app._id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center gap-3">
-                                <img 
-                                  src={getFileUrl(app.profilePicture)} 
-                                  alt={app.fullName} 
+                                <img
+                                  src={getFileUrl(app.profilePicture)}
+                                  alt={app.fullName}
                                   className="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm"
                                   onError={(e) => { e.target.src = 'https://via.placeholder.com/40' }}
                                 />
@@ -818,7 +1176,7 @@ const Dashboard = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {app.registrationViaCentre === 'Yes' ? (
-                                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
                                   Centre
                                 </span>
                               ) : (
@@ -830,24 +1188,86 @@ const Dashboard = () => {
                                 {app.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right flex items-center justify-end gap-3 h-[73px]">
-                              <select
-                                value={app.status}
-                                onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                                className="pl-2 pr-7 py-1 text-xs border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-semibold"
-                              >
-                                <option value="Pending">Pending</option>
-                                <option value="Reviewed">Reviewed</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Rejected">Rejected</option>
-                              </select>
-                              
-                              <button
-                                onClick={() => setSelectedApp(app)}
-                                className="px-3 py-1 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-md shadow-sm"
-                              >
-                                Review
-                              </button>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right relative">
+                              <div className="flex items-center justify-end">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdownId(openDropdownId === app._id ? null : app._id);
+                                  }}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-lg shadow-sm cursor-pointer border border-gray-800"
+                                >
+                                  Actions
+                                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+
+                                {openDropdownId === app._id && (
+                                  <>
+                                    <div 
+                                      className="fixed inset-0 z-30" 
+                                      onClick={() => setOpenDropdownId(null)}
+                                    />
+                                    <div className="absolute right-6 top-12 bg-white border border-gray-200 rounded-xl shadow-xl py-2 w-48 text-left z-40 animate-fade-in-up">
+                                      <button
+                                        onClick={() => {
+                                          setSelectedApp(app);
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                      >
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        View Details / Show
+                                      </button>
+                                      
+                                      <hr className="my-1 border-gray-100" />
+                                      
+                                      <button
+                                        onClick={() => {
+                                          handleStatusChange(app._id, 'Accepted');
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-green-700 hover:bg-green-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                      >
+                                        <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                                        Accept Application
+                                      </button>
+                                      
+                                      <button
+                                        onClick={() => {
+                                          handleStatusChange(app._id, 'Rejected');
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-red-700 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                      >
+                                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                                        Reject Application
+                                      </button>
+                                      
+                                      <button
+                                        onClick={() => {
+                                          handleStatusChange(app._id, 'Reviewed');
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                      >
+                                        <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                                        Mark as Reviewed
+                                      </button>
+                                      
+                                      <button
+                                        onClick={() => {
+                                          handleStatusChange(app._id, 'Pending');
+                                          setOpenDropdownId(null);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-yellow-700 hover:bg-yellow-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                      >
+                                        <span className="w-2 h-2 rounded-full bg-yellow-500 shrink-0" />
+                                        Mark as Pending
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -872,7 +1292,7 @@ const Dashboard = () => {
                   className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                  Add Department
+                  Add Programme
                 </button>
               </div>
 
@@ -892,11 +1312,27 @@ const Dashboard = () => {
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 font-serif">Registered Departments/Levels</h4>
-                      <p className="text-xs text-gray-500">Configure academic certificates and their linked programmes</p>
+                      <h4 className="font-bold text-gray-900 font-serif">Registered Programmes/Levels</h4>
+                      <p className="text-xs text-gray-500">Configure academic certificates and their linked Courses</p>
                     </div>
                   </div>
                   <span className="px-2.5 py-1 bg-red-100 text-uniboRed text-xs font-bold rounded-full">{departments.length} Options</span>
+                </div>
+
+                {/* Search Bar for Programmes */}
+                <div className="p-4 border-b border-gray-100 bg-white">
+                  <div className="relative max-w-md">
+                    <input
+                      type="text"
+                      placeholder="Search Programmes..."
+                      value={searchDeptQuery}
+                      onChange={(e) => setSearchDeptQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700"
+                    />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Registered Departments & Programmes Table */}
@@ -904,14 +1340,17 @@ const Dashboard = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Department</th>
-                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Associated Programmes</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Programmes</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Associated Courses</th>
                         <th scope="col" className="px-6 py-3.5 text-right text-xs font-extrabold text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                      {departments.map((dept, idx) => {
-                        const isEditing = editingDeptIdx === idx;
+                      {departments
+                        .filter(dept => dept.toLowerCase().includes(searchDeptQuery.toLowerCase()))
+                        .map((dept, mapIdx) => {
+                          const idx = departments.indexOf(dept);
+                          const isEditing = editingDeptIdx === idx;
                         const deptProgs = programmes
                           .filter(p => p && typeof p === 'object' ? p.department === dept : false)
                           .map(p => p.programme);
@@ -992,7 +1431,7 @@ const Dashboard = () => {
                       })}
                       {departments.length === 0 && (
                         <tr>
-                          <td colSpan="3" className="text-center text-sm text-gray-400 py-12">No departments added yet.</td>
+                          <td colSpan="3" className="text-center text-sm text-gray-400 py-12">No Programmes added yet.</td>
                         </tr>
                       )}
                     </tbody>
@@ -1015,7 +1454,7 @@ const Dashboard = () => {
                   className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                  Add Programme
+                  Add Course
                 </button>
               </div>
 
@@ -1035,11 +1474,61 @@ const Dashboard = () => {
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 font-serif">Registered Programmes</h4>
-                      <p className="text-xs text-gray-500">Configure academic specializations mapped to departments</p>
+                      <h4 className="font-bold text-gray-900 font-serif">Registered Courses</h4>
+                      <p className="text-xs text-gray-500">Configure academic specializations mapped to Programmes</p>
                     </div>
                   </div>
                   <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">{programmes.length} Options</span>
+                </div>
+
+                {/* Search and Filter Panel for Courses */}
+                <div className="p-4 border-b border-gray-100 bg-white flex flex-col sm:flex-row gap-4 items-center justify-between">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full">
+                    {/* Programme filter */}
+                    <div className="flex flex-col gap-1 w-full sm:w-64">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Filter by Programme</label>
+                      <select
+                        value={filterDeptForProgTable}
+                        onChange={(e) => setFilterDeptForProgTable(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                      >
+                        <option value="all">All Programmes</option>
+                        {departments.map((dept, index) => (
+                          <option key={index} value={dept}>{dept}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Course search */}
+                    <div className="flex flex-col gap-1 w-full sm:w-80">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-semibold">Search Courses</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search Courses..."
+                          value={searchProgQuery}
+                          onChange={(e) => setSearchProgQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700"
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reset filters button */}
+                  {(filterDeptForProgTable !== 'all' || searchProgQuery.trim() !== '') && (
+                    <button
+                      onClick={() => {
+                        setFilterDeptForProgTable('all');
+                        setSearchProgQuery('');
+                      }}
+                      className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-uniboRed bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg whitespace-nowrap cursor-pointer mt-4"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
 
                 {/* Registered Programmes Table */}
@@ -1047,8 +1536,10 @@ const Dashboard = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Department</th>
                         <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Programme</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">courses</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Start Date</th>
+                        <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">End Date</th>
                         <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Credits</th>
                         <th scope="col" className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-500 uppercase tracking-wider">Price</th>
                         <th scope="col" className="px-6 py-3.5 text-right text-xs font-extrabold text-gray-500 uppercase tracking-wider">Action</th>
@@ -1056,12 +1547,25 @@ const Dashboard = () => {
 
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                      {programmes.map((prog, idx) => {
-                        const isEditing = editingProgIdx === idx;
+                      {programmes
+                        .filter(prog => {
+                          const itemDept = typeof prog === 'object' && prog !== null ? prog.department : '';
+                          const itemVal = typeof prog === 'object' && prog !== null ? prog.programme : prog;
+
+                          if (filterDeptForProgTable !== 'all' && itemDept !== filterDeptForProgTable) return false;
+                          if (searchProgQuery.trim() !== '' && !itemVal.toLowerCase().includes(searchProgQuery.toLowerCase())) return false;
+
+                          return true;
+                        })
+                        .map((prog, mapIdx) => {
+                          const idx = programmes.indexOf(prog);
+                          const isEditing = editingProgIdx === idx;
                         const itemDept = typeof prog === 'object' && prog !== null ? prog.department : (departments[0] || 'Level 5 Higher Diploma');
                         const itemVal = typeof prog === 'object' && prog !== null ? prog.programme : prog;
-                        const itemCredits = typeof prog === 'object' && prog !== null ? (prog.creditHours || 'â€”') : 'â€”';
-                        const itemPrice = typeof prog === 'object' && prog !== null ? (prog.price || 'â€”') : 'â€”';
+                        const itemCredits = typeof prog === 'object' && prog !== null ? (prog.creditHours || '—') : '—';
+                        const itemPrice = typeof prog === 'object' && prog !== null ? (prog.price || '—') : '—';
+                        const itemStartDate = typeof prog === 'object' && prog !== null ? (prog.courseStartDate || '—') : '—';
+                        const itemEndDate = typeof prog === 'object' && prog !== null ? (prog.courseEndDate || '—') : '—';
 
                         return (
                           <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
@@ -1079,6 +1583,34 @@ const Dashboard = () => {
                                 />
                               ) : (
                                 <span className="text-sm font-bold text-gray-900">{itemVal}</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editingProgStartDate}
+                                  onChange={(e) => setEditingProgStartDate(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  placeholder="e.g. 1 July 2026"
+                                />
+                              ) : (
+                                itemStartDate
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editingProgEndDate}
+                                  onChange={(e) => setEditingProgEndDate(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  placeholder="e.g. 1 July 2027"
+                                />
+                              ) : (
+                                itemEndDate
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
@@ -1133,6 +1665,8 @@ const Dashboard = () => {
                                       setEditingProgVal(itemVal);
                                       setEditingProgCredits(typeof prog === 'object' && prog !== null ? (prog.creditHours || '') : '');
                                       setEditingProgPrice(typeof prog === 'object' && prog !== null ? (prog.price || '') : '');
+                                      setEditingProgStartDate(typeof prog === 'object' && prog !== null ? (prog.courseStartDate || '') : '');
+                                      setEditingProgEndDate(typeof prog === 'object' && prog !== null ? (prog.courseEndDate || '') : '');
                                     }}
                                     className="px-2.5 py-1 text-xs border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md font-semibold transition-colors"
                                   >
@@ -1152,7 +1686,7 @@ const Dashboard = () => {
                       })}
                       {programmes.length === 0 && (
                         <tr>
-                          <td colSpan="3" className="text-center text-sm text-gray-400 py-12">No programmes added yet.</td>
+                          <td colSpan="7" className="text-center text-sm text-gray-400 py-12">No programmes added yet.</td>
                         </tr>
                       )}
                     </tbody>
@@ -1192,7 +1726,7 @@ const Dashboard = () => {
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden max-w-4xl">
                 <div className="p-6 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+                    <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <div>
@@ -1200,7 +1734,7 @@ const Dashboard = () => {
                       <p className="text-xs text-gray-500">Configure academic session cycles mapped to departments and programmes</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">{intakes.length} Options</span>
+                  <span className="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">{intakes.length} Options</span>
                 </div>
 
                 {/* Registered Intakes Table */}
@@ -1315,7 +1849,6 @@ const Dashboard = () => {
                 </div>
               )}
 
-              {/* Cards Grid */}
               {centres.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-dashed border-gray-300">
                   <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -1331,148 +1864,285 @@ const Dashboard = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {centres.map((centre) => {
-                    const isEditing = editingCentreId === centre._id;
-                    const initials = centre.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                    const colours = [
-                      'from-violet-600 to-purple-700',
-                      'from-uniboRed to-rose-700',
-                      'from-blue-600 to-indigo-700',
-                      'from-emerald-600 to-teal-700',
-                      'from-amber-500 to-orange-600',
-                      'from-pink-600 to-fuchsia-700',
-                    ];
-                    const colourClass = colours[centre.name.charCodeAt(0) % colours.length];
+                <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Centre Details
+                          </th>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Registered Candidates
+                          </th>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Created Date
+                          </th>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {centres.map((centre) => {
+                          const isEditing = editingCentreId === centre._id;
+                          const isSelected = selectedCentreForSubmissions === centre.name;
+                          const centreApps = applications.filter(app => app.registrationViaCentre === 'Yes' && app.centreName === centre.name);
+                          const initials = centre.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-                    return (
-                      <div
-                        key={centre._id}
-                        className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
-                      >
-                        {/* Top accent stripe */}
-                        <div className={`h-1.5 w-full bg-gradient-to-r ${colourClass}`}></div>
-
-                        <div className="p-6">
-                          {isEditing ? (
-                            /* Edit Mode */
-                            <div className="space-y-3">
-                              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Edit Centre</p>
-                              <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Centre Name</label>
-                                <input
-                                  type="text"
-                                  value={editingCentreName}
-                                  onChange={(e) => setEditingCentreName(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
-                                  placeholder="Centre name"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email Address</label>
-                                <input
-                                  type="email"
-                                  value={editingCentreEmail}
-                                  onChange={(e) => setEditingCentreEmail(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
-                                  placeholder="email@example.com"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Contact Number</label>
-                                <input
-                                  type="text"
-                                  value={editingCentrePhone}
-                                  onChange={(e) => setEditingCentrePhone(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold"
-                                  placeholder="e.g. +39 051 209 0000"
-                                />
-                              </div>
-                              <div className="flex gap-2 pt-2">
-                                <button
-                                  onClick={() => saveCentreEdit(centre._id)}
-                                  className="flex-1 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold rounded-lg transition-colors"
-                                >
-                                  Save Changes
-                                  </button>
-                                <button
-                                  onClick={() => { setEditingCentreId(null); setCentreError(''); }}
-                                  className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            /* View Mode */
-                            <div>
-                              <div className="flex items-start gap-4">
-                                {/* Avatar */}
-                                <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${colourClass} flex items-center justify-center shadow-md`}>
-                                  <span className="text-white font-extrabold text-sm tracking-wider">{initials}</span>
-                                </div>
-                                {/* Info */}
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="text-base font-bold text-gray-900 font-serif leading-tight truncate capitalize">{centre.name}</h3>
-                                  <div className="mt-1.5 flex items-center gap-1.5">
-                                    <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                    <span className="text-xs text-gray-500 font-medium truncate">{centre.email}</span>
+                          return (
+                            <tr 
+                              key={centre._id} 
+                              className={`transition-colors ${
+                                isSelected 
+                                  ? 'bg-amber-50/40 hover:bg-amber-50/55 border-l-4 border-amber-600' 
+                                  : 'hover:bg-gray-50/50'
+                              }`}
+                            >
+                              {/* 1. Centre Details */}
+                              <td className="px-6 py-4">
+                                {isEditing ? (
+                                  <div className="space-y-2 max-w-sm">
+                                    <input
+                                      type="text"
+                                      value={editingCentreName}
+                                      onChange={(e) => setEditingCentreName(e.target.value)}
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      placeholder="Centre Name"
+                                    />
+                                    <input
+                                      type="email"
+                                      value={editingCentreEmail}
+                                      onChange={(e) => setEditingCentreEmail(e.target.value)}
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      placeholder="email@example.com"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={editingCentrePhone}
+                                      onChange={(e) => setEditingCentrePhone(e.target.value)}
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      placeholder="Contact Number"
+                                    />
                                   </div>
-                                  {centre.phone && (
-                                    <div className="mt-1 flex items-center gap-1.5">
-                                      <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                      <span className="text-xs text-gray-500 font-medium truncate">{centre.phone}</span>
+                                ) : (
+                                  <div 
+                                    onClick={() => viewCentreSubmissions(centre.name)}
+                                    className="flex items-center gap-3 cursor-pointer group"
+                                    title={`Click to view candidate applications from ${centre.name}`}
+                                  >
+                                    <div className="shrink-0 w-10 h-10 rounded-xl bg-gray-900 border-2 border-uniboRed flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-250">
+                                      <span className="text-uniboRed font-extrabold text-xs tracking-wider">{initials}</span>
                                     </div>
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-bold text-gray-900 leading-tight capitalize truncate font-semibold group-hover:text-uniboRed group-hover:underline transition-colors">{centre.name}</p>
+                                      <p className="text-xs text-gray-500 mt-0.5 truncate">{centre.email}</p>
+                                      {centre.phone && <p className="text-[10px] text-gray-400 font-medium truncate">{centre.phone}</p>}
+                                    </div>
+                                  </div>
+                                )}
+                              </td>
+
+                              {/* 2. Registered Candidates */}
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-bold text-gray-900">{centreApps.length}</span>
+                                  {centreApps.length > 0 && (
+                                    <button
+                                      onClick={() => viewCentreSubmissions(centre.name)}
+                                      className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-[10px] font-bold uppercase tracking-wider transition-colors rounded-md shadow-sm shrink-0 cursor-pointer font-bold"
+                                    >
+                                      View Submissions
+                                    </button>
                                   )}
                                 </div>
-                              </div>
- 
-                              {/* Status + Added date */}
-                              <div className="mt-4 flex items-center justify-between">
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 border border-green-200 text-green-700 text-[11px] font-bold rounded-full">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                              </td>
+
+                              {/* 3. Created Date */}
+                              <td className="px-6 py-4 whitespace-nowrap text-xs font-semibold text-gray-600">
+                                {centre.createdAt ? new Date(centre.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                              </td>
+
+                              {/* 4. Status */}
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 border border-orange-200 text-uniboRed text-[10px] font-bold rounded-full shadow-sm">
+                                  <span className="w-1 h-1 rounded-full bg-uniboRed animate-pulse"></span>
                                   Active
                                 </span>
-                                <p className="text-[10px] text-gray-400 font-medium">
-                                  {centre.createdAt ? new Date(centre.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'}
-                                </p>
-                              </div>
- 
-                              {/* Divider */}
-                              <div className="mt-4 border-t border-gray-100"></div>
+                              </td>
 
-                              {/* Action Buttons */}
-                              <div className="mt-4 flex items-center gap-2">
-                                <button
-                                  onClick={() => {
-                                    setEditingCentreId(centre._id);
-                                    setEditingCentreName(centre.name);
-                                    setEditingCentreEmail(centre.email);
-                                    setEditingCentrePhone(centre.phone || '');
-                                    setCentreError('');
-                                  }}
-                                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors"
-                                >
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => removeCentre(centre._id)}
-                                  className="flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-xs font-bold rounded-lg transition-colors"
-                                >
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                  Remove
-                                </button>
-                              </div>
-
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                              {/* 5. Actions */}
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
+                                {isEditing ? (
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      onClick={() => saveCentreEdit(centre._id)}
+                                      className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-md cursor-pointer font-bold"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={() => { setEditingCentreId(null); setCentreError(''); }}
+                                      className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded-md cursor-pointer font-bold"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex justify-end gap-3 items-center">
+                                    <button
+                                      onClick={() => {
+                                        setEditingCentreId(centre._id);
+                                        setEditingCentreName(centre.name);
+                                        setEditingCentreEmail(centre.email);
+                                        setEditingCentrePhone(centre.phone || '');
+                                        setCentreError('');
+                                      }}
+                                      className="px-3 py-1.5 text-xs border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-md font-semibold transition-colors flex items-center gap-1 cursor-pointer font-bold"
+                                    >
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() => removeCentre(centre._id)}
+                                      className="text-gray-400 hover:text-uniboRed transition-colors p-1.5 hover:bg-red-50 rounded-md cursor-pointer"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
+
+              {/* SELECTED CENTRE SUBMISSIONS DETAIL TABLE */}
+              {selectedCentreForSubmissions && (() => {
+                const submissionsForSelectedCentre = applications.filter(
+                  (app) => app.registrationViaCentre === 'Yes' && app.centreName === selectedCentreForSubmissions
+                );
+
+                return (
+                  <div className="mt-8 bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden animate-fade-in-up">
+                    <div className="p-6 bg-gray-50 border-b border-gray-100 flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-amber-50 text-amber-700 rounded-xl">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 font-serif">Submissions: {selectedCentreForSubmissions}</h3>
+                          <p className="text-xs text-gray-500 font-medium">Viewing candidates registered via this approved regional centre.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">
+                          {submissionsForSelectedCentre.length} Candidate{submissionsForSelectedCentre.length !== 1 ? 's' : ''}
+                        </span>
+                        <button
+                          onClick={() => setSelectedCentreForSubmissions(null)}
+                          className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors flex items-center gap-1 cursor-pointer font-bold animate-pulse"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Close Submissions
+                        </button>
+                      </div>
+                    </div>
+
+                    {submissionsForSelectedCentre.length === 0 ? (
+                      <div className="p-12 text-center text-gray-500 font-medium italic">
+                        No student registrations logged for this centre yet.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Applicant details
+                              </th>
+                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Academic Programme
+                              </th>
+                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Location
+                              </th>
+                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Status
+                              </th>
+                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {submissionsForSelectedCentre.map((app) => (
+                              <tr key={app._id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center gap-3">
+                                    <img
+                                      src={getFileUrl(app.profilePicture)}
+                                      alt={app.fullName}
+                                      className="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                                      onError={(e) => { e.target.src = 'https://via.placeholder.com/40' }}
+                                    />
+                                    <div>
+                                      <div className="text-sm font-bold text-gray-900 leading-tight">{app.fullName}</div>
+                                      <div className="text-xs text-gray-500 mt-0.5">Cert: {app.certificateName}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-900 font-medium">{app.programme}</div>
+                                  <div className="text-xs text-gray-500">{app.department}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-900 font-medium">{app.country}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(app.status)}`}>
+                                    {app.status}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right flex items-center justify-end gap-3 h-[73px]">
+                                  <select
+                                    value={app.status}
+                                    onChange={(e) => handleStatusChange(app._id, e.target.value)}
+                                    className="pl-2 pr-7 py-1 text-xs border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-semibold"
+                                  >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Reviewed">Reviewed</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Rejected">Rejected</option>
+                                  </select>
+
+                                  <button
+                                    onClick={() => setSelectedApp(app)}
+                                    className="px-3 py-1 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-md shadow-sm cursor-pointer"
+                                  >
+                                    Review
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </main>
@@ -1482,14 +2152,14 @@ const Dashboard = () => {
       {selectedApp && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col my-8 max-h-[90vh]">
-            
+
             {/* Modal Header */}
             <div className="bg-gray-900 text-white p-6 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-xl font-bold font-serif">Registry Candidate Verification</h3>
                 <p className="text-xs text-gray-400">Application Reference ID: {selectedApp._id}</p>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedApp(null)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -1499,12 +2169,12 @@ const Dashboard = () => {
 
             {/* Modal Body */}
             <div className="p-6 space-y-6 overflow-y-auto">
-              
+
               {/* Profile Header */}
               <div className="flex flex-col sm:flex-row items-center gap-4 border-b border-gray-100 pb-6">
-                <img 
-                  src={getFileUrl(selectedApp.profilePicture)} 
-                  alt={selectedApp.fullName} 
+                <img
+                  src={getFileUrl(selectedApp.profilePicture)}
+                  alt={selectedApp.fullName}
                   className="h-24 w-24 rounded-2xl object-cover border-2 border-gray-200 shadow-md"
                   onError={(e) => { e.target.src = 'https://via.placeholder.com/96' }}
                 />
@@ -1522,11 +2192,11 @@ const Dashboard = () => {
 
               {/* Grid Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-sm">
-                
+
                 {/* Column 1: Personal */}
                 <div className="space-y-4">
                   <h5 className="font-serif font-bold text-gray-900 border-b border-gray-100 pb-1.5 text-base">Personal Registry</h5>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date of Birth</p>
@@ -1568,9 +2238,9 @@ const Dashboard = () => {
                 {/* Column 2: Academic */}
                 <div className="space-y-4">
                   <h5 className="font-serif font-bold text-gray-900 border-b border-gray-100 pb-1.5 text-base">Academic & Program Profile</h5>
-                  
+
                   <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Department</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Programme</p>
                     <p className="text-gray-800 font-medium">{selectedApp.department}</p>
                   </div>
 
@@ -1603,8 +2273,8 @@ const Dashboard = () => {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Registration Method</p>
                     {selectedApp.registrationViaCentre === 'Yes' ? (
                       <div className="space-y-1 text-xs">
-                        <p className="font-bold text-purple-800 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                        <p className="font-bold text-amber-800 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
                           Via Approved Centre
                         </p>
                         <p className="text-gray-500 font-medium">Email: <span className="text-gray-700">{selectedApp.centreEmail}</span></p>
@@ -1625,10 +2295,10 @@ const Dashboard = () => {
               <div className="border-t border-gray-100 pt-6 border-b pb-6">
                 <h5 className="font-serif font-bold text-gray-900 mb-4 text-base">Certified Registration Documents</h5>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  
-                  <a 
-                    href={getFileUrl(selectedApp.profilePicture)} 
-                    target="_blank" 
+
+                  <a
+                    href={getFileUrl(selectedApp.profilePicture)}
+                    target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                   >
@@ -1636,9 +2306,9 @@ const Dashboard = () => {
                     Profile Picture
                   </a>
 
-                  <a 
-                    href={getFileUrl(selectedApp.passportCopy)} 
-                    target="_blank" 
+                  <a
+                    href={getFileUrl(selectedApp.passportCopy)}
+                    target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                   >
@@ -1646,9 +2316,9 @@ const Dashboard = () => {
                     Passport/ID Copy
                   </a>
 
-                  <a 
-                    href={getFileUrl(selectedApp.resume)} 
-                    target="_blank" 
+                  <a
+                    href={getFileUrl(selectedApp.resume)}
+                    target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                   >
@@ -1656,9 +2326,9 @@ const Dashboard = () => {
                     Resume / CV
                   </a>
 
-                  <a 
-                    href={getFileUrl(selectedApp.transcript1)} 
-                    target="_blank" 
+                  <a
+                    href={getFileUrl(selectedApp.transcript1)}
+                    target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                   >
@@ -1667,9 +2337,9 @@ const Dashboard = () => {
                   </a>
 
                   {selectedApp.transcript2 ? (
-                    <a 
-                      href={getFileUrl(selectedApp.transcript2)} 
-                      target="_blank" 
+                    <a
+                      href={getFileUrl(selectedApp.transcript2)}
+                      target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                     >
@@ -1683,9 +2353,9 @@ const Dashboard = () => {
                   )}
 
                   {selectedApp.transcript3 ? (
-                    <a 
-                      href={getFileUrl(selectedApp.transcript3)} 
-                      target="_blank" 
+                    <a
+                      href={getFileUrl(selectedApp.transcript3)}
+                      target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
                     >
@@ -1718,8 +2388,8 @@ const Dashboard = () => {
                   <option value="Rejected">Rejected</option>
                 </select>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setSelectedApp(null)}
                 className="w-full sm:w-auto px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-md text-sm font-semibold transition-colors shadow-sm"
               >
@@ -1737,10 +2407,10 @@ const Dashboard = () => {
             {/* Modal Header */}
             <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-lg font-bold font-serif">Add New Department</h3>
-                <p className="text-xs text-gray-400">Configure a new academic certification level</p>
+                <h3 className="text-lg font-bold font-serif">Add New Programme</h3>
+                <p className="text-xs text-gray-400">Configure a new academic programme level</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowAddDeptModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -1751,7 +2421,7 @@ const Dashboard = () => {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Department Name</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Programme Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Level 5 Higher Diploma"
@@ -1760,33 +2430,21 @@ const Dashboard = () => {
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Associated Programmes (Comma Separated)</label>
-                <textarea
-                  rows="3"
-                  placeholder="e.g. MBA, MSc Marketing, Diploma in HRM"
-                  value={newDeptProgrammes}
-                  onChange={(e) => setNewDeptProgrammes(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold resize-none"
-                />
-                <p className="text-[10px] text-gray-400 mt-1 font-semibold">Separate multiple programs with a comma (,)</p>
-              </div>
             </div>
 
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
-              <button 
+              <button
                 onClick={() => setShowAddDeptModal(false)}
                 className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={addDepartment}
                 className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
-                Create Department
+                Create Programme
               </button>
             </div>
           </div>
@@ -1800,10 +2458,10 @@ const Dashboard = () => {
             {/* Modal Header */}
             <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-lg font-bold font-serif">Add New Programme</h3>
-                <p className="text-xs text-gray-400">Configure specializations linked to departments</p>
+                <h3 className="text-lg font-bold font-serif">Add New Course</h3>
+                <p className="text-xs text-gray-400">Configure a new course linked to a programme</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowAddProgModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -1814,13 +2472,13 @@ const Dashboard = () => {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Select Department</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Select Programme</label>
                 <select
                   value={selectedDeptForProg}
                   onChange={(e) => setSelectedDeptForProg(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
                 >
-                  <option value="">-- Choose Department --</option>
+                  <option value="">-- Choose Programme --</option>
                   {departments.map((d, index) => (
                     <option key={index} value={d}>{d}</option>
                   ))}
@@ -1828,10 +2486,10 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Programme Name</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Course Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Executive Diploma in Marketing"
+                  placeholder="e.g. Master of Business Administration"
                   value={newProgramme}
                   onChange={(e) => setNewProgramme(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
@@ -1860,21 +2518,44 @@ const Dashboard = () => {
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Course Start Date</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1 July 2026"
+                    value={newCourseStartDate}
+                    onChange={(e) => setNewCourseStartDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Course End Date</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1 July 2027"
+                    value={newCourseEndDate}
+                    onChange={(e) => setNewCourseEndDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
-              <button 
+              <button
                 onClick={() => setShowAddProgModal(false)}
                 className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={addProgramme}
                 className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
-                Create Programme
+                Create Course
               </button>
             </div>
           </div>
@@ -1889,9 +2570,9 @@ const Dashboard = () => {
             <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-lg font-bold font-serif">Add Intake Mapping</h3>
-                <p className="text-xs text-gray-400">Map custom intakes to departments and programmes</p>
+                <p className="text-xs text-gray-400">Map custom intakes to programmes and courses</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowAddIntkModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
@@ -1902,7 +2583,7 @@ const Dashboard = () => {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Select Department</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Select Programme</label>
                 <select
                   value={selectedDeptForIntake}
                   onChange={(e) => {
@@ -1911,7 +2592,7 @@ const Dashboard = () => {
                   }}
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
                 >
-                  <option value="">-- Choose Department --</option>
+                  <option value="">-- Choose Programme --</option>
                   {departments.map((d, index) => (
                     <option key={index} value={d}>{d}</option>
                   ))}
@@ -1955,13 +2636,13 @@ const Dashboard = () => {
 
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
-              <button 
+              <button
                 onClick={() => setShowAddIntkModal(false)}
                 className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={addIntake}
                 className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
