@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null); // For details modal
   const [activeTab, setActiveTab] = useState('applications'); // 'overview' or 'applications'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -627,25 +628,46 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Mobile Drawer Backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-[45] md:hidden transition-opacity duration-300 backdrop-blur-xs"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col justify-between shrink-0 hidden md:flex border-r border-gray-800">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white flex flex-col justify-between shrink-0 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:flex border-r border-gray-800 ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
 
         {/* Sidebar Header / Branding */}
         <div>
-          <div className="p-5 border-b border-gray-800 flex items-center gap-3">
-            <Link to="/" className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-350 cursor-pointer">
-              <img src={logo} alt="Institute Bologna" className="h-13 w-auto object-contain" />
-            </Link>
-            <div className="flex flex-col">
-              <span className="text-white font-bold text-xs tracking-wider font-serif">INSTITUTE</span>
-              <span className="text-gray-400 text-[10px] font-bold">Admissions Admin</span>
+          <div className="p-5 border-b border-gray-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Link to="/" className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-350 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+                <img src={logo} alt="Institute Bologna" className="h-13 w-auto object-contain" />
+              </Link>
+              <div className="flex flex-col">
+                <span className="text-white font-bold text-xs tracking-wider font-serif">INSTITUTE</span>
+                <span className="text-gray-400 text-[10px] font-bold">Admissions Admin</span>
+              </div>
             </div>
+            {/* Close Button for Mobile Drawer */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="md:hidden p-1.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-2">
             <button
-              onClick={() => setActiveTab('overview')}
+              onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'overview'
                 ? 'bg-uniboRed text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -656,7 +678,7 @@ const Dashboard = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab('applications')}
+              onClick={() => { setActiveTab('applications'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'applications'
                 ? 'bg-uniboRed text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -672,7 +694,7 @@ const Dashboard = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab('departments')}
+              onClick={() => { setActiveTab('departments'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'departments'
                 ? 'bg-uniboRed text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -683,7 +705,7 @@ const Dashboard = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab('programmes')}
+              onClick={() => { setActiveTab('programmes'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'programmes'
                 ? 'bg-uniboRed text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -693,19 +715,8 @@ const Dashboard = () => {
               Courses
             </button>
 
-            {/* <button
-              onClick={() => setActiveTab('intakes')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'intakes'
-                  ? 'bg-uniboRed text-white shadow-md'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              Intakes
-            </button> */}
-
             <button
-              onClick={() => setActiveTab('centres')}
+              onClick={() => { setActiveTab('centres'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'centres'
                 ? 'bg-uniboRed text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -725,6 +736,7 @@ const Dashboard = () => {
               <Link
                 to="/"
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Back to Home
@@ -745,7 +757,7 @@ const Dashboard = () => {
             </div>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
             className="w-full py-2 bg-gray-800 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-md transition-colors shadow-sm"
           >
             Sign Out
@@ -759,6 +771,15 @@ const Dashboard = () => {
         {/* TOP HEADER */}
         <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shrink-0 z-20">
           <div className="flex items-center gap-2 md:hidden">
+            {/* Hamburger Toggle Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-1.5 -ml-1 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-uniboRed transition-colors mr-1"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             {/* Logo on Mobile */}
             <Link to="/" className="h-12 bg-white rounded-md p-1 flex items-center justify-center border border-gray-200 shadow-sm hover:scale-105 transition-transform duration-350 cursor-pointer">
               <img src={logo} alt="Institute Bologna" className="h-10 w-auto object-contain" />
