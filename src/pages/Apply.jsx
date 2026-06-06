@@ -12,7 +12,8 @@ const Apply = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     // Step 1: Personal
-    fullName: '',
+    firstName: '',
+    lastName: '',
     certificateName: '',
     dob: '',
     gender: '',
@@ -117,7 +118,7 @@ const Apply = () => {
   // Per-step completion check — drives button disabled state
   const isStepComplete = (() => {
     if (step === 1)
-      return !!(formData.fullName && formData.certificateName && formData.dob && formData.gender);
+      return !!(formData.firstName && formData.lastName && formData.certificateName && formData.dob && formData.gender);
     if (step === 2)
       return !!(formData.email && formData.phone && formData.passportNumber && formData.country && formData.address);
     if (step === 3)
@@ -199,7 +200,7 @@ const Apply = () => {
   const nextStep = () => {
     setErrorMsg('');
     if (step === 1) {
-      if (!formData.fullName || !formData.certificateName || !formData.dob || !formData.gender) {
+      if (!formData.firstName || !formData.lastName || !formData.certificateName || !formData.dob || !formData.gender) {
         setErrorMsg('Please fill out all required fields.');
         return;
       }
@@ -322,6 +323,17 @@ const Apply = () => {
                 <p className="text-sm sm:text-base text-gray-500 max-w-md">Your full academic profile and uploaded files have been logged. We will review your academic qualifications shortly.</p>
                 <p className="text-xs sm:text-sm text-gray-400 mt-8">Redirecting to Home page...</p>
               </div>
+            ) : isSubmitting ? (
+              <div className="py-12 sm:py-20 flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-20 h-20 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
+                  <div className="absolute w-12 h-12 bg-uniboRed/10 rounded-full"></div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-gray-900">Submitting Your Application</h3>
+                  <p className="text-sm text-gray-500 max-w-md mx-auto">Please wait while we upload your files and process your application. This may take a moment...</p>
+                </div>
+              </div>
             ) : (
               <div className="space-y-8">
                 {errorMsg && (
@@ -350,16 +362,31 @@ const Apply = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Name (in Full as per ID/Passport) <span className="text-uniboRed">*</span>
+                          First Name <span className="text-uniboRed">*</span>
                         </label>
                         <input
                           type="text"
-                          name="fullName"
+                          name="firstName"
                           required
-                          value={formData.fullName}
+                          value={formData.firstName}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
-                          placeholder="e.g. Leonardo da Vinci"
+                          placeholder="e.g. Leonardo"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                          Last Name <span className="text-uniboRed">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          required
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          placeholder="e.g. da Vinci"
                         />
                       </div>
 
@@ -912,7 +939,8 @@ const Apply = () => {
                   <button type="button" onClick={() => setStep(1)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-5 text-sm">
-                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Full Name (as per ID)</span><span className="text-gray-800 font-semibold">{formData.fullName || '—'}</span></div>
+                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">First Name</span><span className="text-gray-800 font-semibold">{formData.firstName || '—'}</span></div>
+                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Last Name</span><span className="text-gray-800 font-semibold">{formData.lastName || '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Certificate Name</span><span className="text-gray-800 font-semibold">{formData.certificateName || '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Date of Birth</span><span className="text-gray-800 font-semibold">{formData.dob ? new Date(formData.dob).toLocaleDateString() : '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Gender</span><span className="text-gray-800 font-semibold">{formData.gender || '—'}</span></div>

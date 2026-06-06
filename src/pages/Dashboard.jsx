@@ -9,6 +9,8 @@ import logo from '../assets/logo.png';
 const Dashboard = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState([]);
+  const [showLogsDrawer, setShowLogsDrawer] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null); // For details modal
   const [activeTab, setActiveTab] = useState('applications'); // 'overview' or 'applications'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -107,7 +109,83 @@ const Dashboard = () => {
     fetchApplications();
     fetchAcademicOptions();
     fetchCentres();
+    fetchLogs();
   }, []);
+
+  const fetchLogs = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/api/logs`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLogs(response.data);
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+    }
+  };
+
+  const clearLogs = async () => {
+    if (!window.confirm('Are you sure you want to clear the entire activity feed?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/api/logs`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLogs([]);
+      setNotification({
+        message: 'Activity feed cleared successfully!',
+        type: 'success'
+      });
+      setTimeout(() => setNotification(null), 4000);
+    } catch (error) {
+      console.error('Error clearing activity logs:', error);
+    }
+  };
+
+  const getLogIcon = (category) => {
+    switch (category) {
+      case 'application':
+        return (
+          <span className="p-2 rounded-lg bg-green-50 text-green-600 border border-green-100 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
+        );
+      case 'status':
+        return (
+          <span className="p-2 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+            </svg>
+          </span>
+        );
+      case 'centre':
+        return (
+          <span className="p-2 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" />
+            </svg>
+          </span>
+        );
+      case 'programme':
+        return (
+          <span className="p-2 rounded-lg bg-purple-50 text-purple-600 border border-purple-100 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13" />
+            </svg>
+          </span>
+        );
+      default:
+        return (
+          <span className="p-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+        );
+    }
+  };
   
   useEffect(() => {
     setSelectedCentreForSubmissions(null);
@@ -195,6 +273,7 @@ const Dashboard = () => {
         phone: newCentrePhone.trim()
       }, { headers: { Authorization: `Bearer ${token}` } });
       setCentres(prev => [response.data, ...prev]);
+      fetchLogs();
       setNewCentreName('');
       setNewCentreEmail('');
       setNewCentrePhone('');
@@ -218,6 +297,7 @@ const Dashboard = () => {
         phone: editingCentrePhone.trim()
       }, { headers: { Authorization: `Bearer ${token}` } });
       setCentres(prev => prev.map(c => c._id === id ? response.data : c));
+      fetchLogs();
       setEditingCentreId(null);
     } catch (error) {
       setCentreError(error.response?.data?.message || 'Failed to update centre.');
@@ -232,6 +312,7 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCentres(prev => prev.filter(c => c._id !== id));
+      fetchLogs();
     } catch (error) {
       console.error('Error deleting centre:', error);
     }
@@ -251,6 +332,7 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSaveSuccessMsg('Changes auto-saved successfully!');
+      fetchLogs();
       setTimeout(() => setSaveSuccessMsg(''), 2000);
     } catch (error) {
       console.error('Error auto-saving configurations:', error);
@@ -489,6 +571,15 @@ const Dashboard = () => {
   };
 
   const handleStatusChange = async (id, newStatus) => {
+    // Get candidate name
+    const candidate = applications.find(app => app._id === id);
+    const candidateName = candidate ? candidate.fullName : 'Applicant';
+    
+    // Add confirmation
+    if (!window.confirm(`Are you sure you want to change ${candidateName}'s application status to "${newStatus}"?`)) {
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       await axios.patch(`${API_URL}/api/applications/${id}/status`,
@@ -500,6 +591,7 @@ const Dashboard = () => {
       setApplications(applications.map(app =>
         app._id === id ? { ...app, status: newStatus } : app
       ));
+      fetchLogs();
 
       // Update selected app state if it's currently open in the modal
       if (selectedApp && selectedApp._id === id) {
@@ -528,10 +620,11 @@ const Dashboard = () => {
   const exportToCSV = () => {
     if (filteredApplications.length === 0) return;
     
-    // Headers: Name, Email, Contact Number, Country, Program, Course
-    const headers = ['Name', 'Email', 'Contact Number', 'Country', 'Program', 'Course'];
+    // Headers: First Name, Last Name, Email, Contact Number, Country, Program, Course
+    const headers = ['First Name', 'Last Name', 'Email', 'Contact Number', 'Country', 'Program', 'Course'];
     const rows = filteredApplications.map(app => [
-      app.fullName,
+      app.firstName || '',
+      app.lastName || '',
       app.email,
       app.phone,
       app.country,
@@ -794,6 +887,25 @@ const Dashboard = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Desktop & Mobile: Action Log Button */}
+            <button
+              onClick={() => {
+                fetchLogs();
+                setShowLogsDrawer(true);
+              }}
+              className="relative p-2 text-gray-750 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors flex items-center gap-1.5 font-bold text-xs border border-gray-200 bg-white cursor-pointer shadow-xs hover:border-gray-300"
+            >
+              <svg className="w-4.5 h-4.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+              <span className="hidden sm:inline">Action Log</span>
+              {logs.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-uniboRed text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ring-2 ring-white animate-pulse">
+                  {logs.length}
+                </span>
+              )}
+            </button>
+
             {/* Mobile Actions */}
             <div className="md:hidden flex items-center gap-2">
               <Link
@@ -1158,9 +1270,6 @@ const Dashboard = () => {
                             Academic Programme
                           </th>
                           <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Location
-                          </th>
-                          <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Via Centre?
                           </th>
                           <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -1191,9 +1300,6 @@ const Dashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900 font-medium">{app.programme}</div>
                               <div className="text-xs text-gray-500">{app.department}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900 font-medium">{app.country}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {app.registrationViaCentre === 'Yes' ? (
@@ -2097,9 +2203,6 @@ const Dashboard = () => {
                                 Academic Programme
                               </th>
                               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Location
-                              </th>
-                              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                 Status
                               </th>
                               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
@@ -2127,9 +2230,6 @@ const Dashboard = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-900 font-medium">{app.programme}</div>
                                   <div className="text-xs text-gray-500">{app.department}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm text-gray-900 font-medium">{app.country}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(app.status)}`}>
@@ -2217,6 +2317,19 @@ const Dashboard = () => {
                 {/* Column 1: Personal */}
                 <div className="space-y-4">
                   <h5 className="font-serif font-bold text-gray-900 border-b border-gray-100 pb-1.5 text-base">Personal Registry</h5>
+
+                  {(selectedApp.firstName || selectedApp.lastName) && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">First Name</p>
+                        <p className="text-gray-800 font-medium">{selectedApp.firstName || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Last Name</p>
+                        <p className="text-gray-800 font-medium">{selectedApp.lastName || '—'}</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -2745,6 +2858,92 @@ const Dashboard = () => {
               >
                 Create Centre
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Activity Log slide-over Drawer */}
+      {showLogsDrawer && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/55 backdrop-blur-xs transition-opacity duration-300"
+            onClick={() => setShowLogsDrawer(false)}
+          />
+
+          <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0">
+              
+              {/* Drawer Header */}
+              <div className="bg-gray-900 text-white px-6 py-5 border-b-4 border-uniboRed flex items-center justify-between shrink-0">
+                <div>
+                  <h3 className="text-lg font-bold font-serif">System Action Log</h3>
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Historical Audit Feed</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowLogsDrawer(false)}
+                    className="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Drawer Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {logs.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-3 py-20 text-gray-400">
+                    <span className="p-3 bg-gray-50 border border-gray-150 rounded-full">
+                      <svg className="w-8 h-8 text-gray-350" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+                      </svg>
+                    </span>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm text-gray-700">No actions logged yet</h4>
+                      <p className="text-xs text-gray-500 max-w-[200px] mx-auto">Activities from student applications and admin panels will appear here.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    {logs.map((log) => (
+                      <div key={log._id} className="flex gap-3 bg-gray-50/60 hover:bg-gray-50 border border-gray-150 p-3 rounded-xl transition-colors">
+                        {getLogIcon(log.category)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="text-xs font-bold text-gray-900 truncate leading-snug">
+                              {log.action}
+                            </h4>
+                            <span className="text-[9px] font-semibold text-gray-400 shrink-0">
+                              {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-650 leading-relaxed font-semibold mt-1">
+                            {log.description}
+                          </p>
+                          <div className="flex items-center justify-between mt-2.5">
+                            <span className="text-[9px] font-bold text-gray-400">
+                              {new Date(log.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
+                            {log.performedBy && (
+                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase ${
+                                log.performedBy === 'Admin' 
+                                  ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                                  : 'bg-green-100 text-green-700 border border-green-200'
+                              }`}>
+                                {log.performedBy === 'Admin' ? 'By Admin' : 'By User'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
