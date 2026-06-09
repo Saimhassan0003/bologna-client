@@ -620,16 +620,69 @@ const Dashboard = () => {
   const exportToCSV = () => {
     if (filteredApplications.length === 0) return;
     
-    // Headers: First Name, Last Name, Email, Contact Number, Country, Program, Course
-    const headers = ['First Name', 'Last Name', 'Email', 'Contact Number', 'Country', 'Program', 'Course'];
+    // Headers: All form fields except file attachments
+    const headers = [
+      // Personal Info
+      'First Name',
+      'Last Name',
+      'Full Name',
+      'Certificate Name',
+      'Date of Birth',
+      'Gender',
+      'Email',
+      'Phone',
+      'Passport Number',
+      'Country',
+      'Address',
+      // Academic Info
+      'Department',
+      'Programme',
+      'Course Start Date',
+      'Course End Date',
+      'Intake',
+      'Credit Hours',
+      'Price',
+      'Highest Qualification',
+      // Centre Info
+      'Registration Via Centre',
+      'Centre Name',
+      'Centre Email',
+      'Centre Phone',
+      // Metadata
+      'Submission Date',
+      'Status'
+    ];
+
     const rows = filteredApplications.map(app => [
+      // Personal Info
       app.firstName || '',
       app.lastName || '',
-      app.email,
-      app.phone,
-      app.country,
-      app.department,
-      app.programme
+      app.fullName || '',
+      app.certificateName || '',
+      app.dob ? new Date(app.dob).toLocaleDateString('en-GB') : '',
+      app.gender || '',
+      app.email || '',
+      app.phone || '',
+      app.passportNumber || '',
+      app.country || '',
+      app.address || '',
+      // Academic Info
+      app.department || '',
+      app.programme || '',
+      app.courseStartDate || '',
+      app.courseEndDate || '',
+      app.intake || '',
+      app.creditHours || '',
+      app.price || '',
+      app.highestQualification || '',
+      // Centre Info
+      app.registrationViaCentre || 'No',
+      app.centreName || '',
+      app.centreEmail || '',
+      app.centrePhone || '',
+      // Metadata
+      app.submissionDate ? new Date(app.submissionDate).toLocaleDateString('en-GB') : '',
+      app.status || ''
     ]);
 
     // Construct CSV Content with proper escape strings
