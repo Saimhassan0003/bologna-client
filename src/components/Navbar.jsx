@@ -14,7 +14,7 @@ const Navbar = () => {
             <Link to="/" className="flex items-center py-2">
               <img
                 src={logo}
-                alt="Institute Bologna"
+                alt="Institute UTAMED"
                 className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 hover:scale-105"
               />
             </Link>

@@ -626,7 +626,7 @@ const Dashboard = () => {
       'First Name',
       'Last Name',
       'Full Name',
-      'Certificate Name',
+      'Name to be Printed on the Certificate',
       'Date of Birth',
       'Gender',
       'Email',
@@ -635,12 +635,12 @@ const Dashboard = () => {
       'Country',
       'Address',
       // Academic Info
-      'Department',
-      'Programme',
+      'Programme Type',
+      'Course Name',
       'Course Start Date',
       'Course End Date',
-      'Intake',
-      'Credit Hours',
+      'Credits',
+      'Hours',
       'Price',
       'Highest Qualification',
       // Centre Info
@@ -671,8 +671,8 @@ const Dashboard = () => {
       app.programme || '',
       app.courseStartDate || '',
       app.courseEndDate || '',
-      app.intake || '',
-      app.creditHours || '',
+      app.creditHours ? String(app.creditHours).split(' ')[0] : '', // Credits
+      app.creditHours ? String(app.creditHours).split(' ').slice(1).join(' ') : '', // Hours
       app.price || '',
       app.highestQualification || '',
       // Centre Info
@@ -792,7 +792,7 @@ const Dashboard = () => {
           <div className="p-5 border-b border-gray-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Link to="/" className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-350 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src={logo} alt="Institute Bologna" className="h-13 w-auto object-contain" />
+                <img src={logo} alt="Institute UTAMED" className="h-13 w-auto object-contain" />
               </Link>
               <div className="flex flex-col">
                 <span className="text-white font-bold text-xs tracking-wider font-serif">INSTITUTE</span>
@@ -928,13 +928,13 @@ const Dashboard = () => {
             </button>
             {/* Logo on Mobile */}
             <Link to="/" className="h-12 bg-white rounded-md p-1 flex items-center justify-center border border-gray-200 shadow-sm hover:scale-105 transition-transform duration-350 cursor-pointer">
-              <img src={logo} alt="Institute Bologna" className="h-10 w-auto object-contain" />
+              <img src={logo} alt="Institute UTAMED" className="h-10 w-auto object-contain" />
             </Link>
-            <span className="text-gray-900 font-bold text-sm">Institute Bologna Admin</span>
+            <span className="text-gray-900 font-bold text-sm">Institute UTAMED Admin</span>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <span className="text-gray-500 font-semibold text-xs tracking-wider uppercase">Institute Bologna</span>
+            <span className="text-gray-500 font-semibold text-xs tracking-wider uppercase">Institute UTAMED</span>
             <span className="text-gray-300">|</span>
             <span className="text-gray-900 font-bold text-sm">Admissions Portal</span>
           </div>
@@ -2869,7 +2869,7 @@ const Dashboard = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Centre Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Bologna Study Centre Nairobi"
+                  placeholder="e.g. UTAMED Study Centre Nairobi"
                   value={newCentreName}
                   onChange={(e) => setNewCentreName(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"

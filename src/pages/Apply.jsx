@@ -293,10 +293,10 @@ const Apply = () => {
           <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-uniboRed flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/" className="bg-white rounded-lg p-1.5 sm:p-2 h-12 sm:h-18 flex items-center justify-center shadow-lg border border-gray-800 hover:scale-105 transition-transform duration-350 cursor-pointer">
-                <img src={logo} alt="Institute Bologna Logo" className="h-10 sm:h-14 w-auto object-contain" />
+                <img src={logo} alt="Institute UTAMED Logo" className="h-10 sm:h-14 w-auto object-contain" />
               </Link>
               <div>
-                <h2 className="text-lg sm:text-2xl font-serif font-bold tracking-wide">Institute Bologna</h2>
+                <h2 className="text-lg sm:text-2xl font-serif font-bold tracking-wide">Institute UTAMED</h2>
                 <p className="text-gray-400 text-xs mt-0.5">Academic Admission Application Portal</p>
               </div>
             </div>
@@ -534,7 +534,7 @@ const Apply = () => {
                           value={formData.address}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none resize-none"
-                          placeholder="Piazza di Porta Ravegnana, Bologna, BO, Italy"
+                          placeholder="Piazza di Porta Ravegnana, UTAMED, BO, Italy"
                         ></textarea>
                       </div>
                     </div>
@@ -902,7 +902,7 @@ const Apply = () => {
               <div className="mt-8 border border-gray-200 rounded-xl p-6 bg-gray-50 space-y-4">
                 <h4 className="text-md sm:text-lg font-serif font-bold text-gray-900">Data Privacy and Consent Notice</h4>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Institute Bologna respects and protects your personal data. The information collected in this application form will be used only for admission, enrollment, academic, and administrative purposes.
+                  Institute UTAMED respects and protects your personal data. The information collected in this application form will be used only for admission, enrollment, academic, and administrative purposes.
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   By submitting this form, you agree that the institution may collect, process, store, and use your personal information in accordance with its Data Privacy Policy.
