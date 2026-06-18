@@ -2436,14 +2436,18 @@ const Dashboard = () => {
                     <p className="text-gray-800 font-medium">{selectedApp.programme}</p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Intake</p>
                       <p className="text-gray-800 font-medium">{selectedApp.intake}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Credit Hours</p>
-                      <p className="text-gray-800 font-medium">{selectedApp.creditHours || '—'}</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Credits</p>
+                      <p className="text-gray-800 font-medium">{selectedApp.creditHours ? String(selectedApp.creditHours).split(' ')[0] : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hours</p>
+                      <p className="text-gray-800 font-medium">{selectedApp.creditHours ? String(selectedApp.creditHours).split(' ').slice(1).join(' ') : '—'}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Price</p>
@@ -2683,14 +2687,30 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Credit Hours</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Credits</label>
                   <input
                     type="text"
-                    placeholder="e.g. 120 ECTS"
-                    value={newCreditHours}
-                    onChange={(e) => setNewCreditHours(e.target.value)}
+                    placeholder="e.g. 120"
+                    value={newCreditHours.split(' ')[0] || ''}
+                    onChange={(e) => {
+                      const hours = newCreditHours.split(' ').slice(1).join(' ');
+                      setNewCreditHours(`${e.target.value} ${hours}`.trim());
+                    }}
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Hours</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ECTS"
+                    value={newCreditHours.split(' ').slice(1).join(' ')}
+                    onChange={(e) => {
+                      const credits = newCreditHours.split(' ')[0] || '';
+                      setNewCreditHours(`${credits} ${e.target.value}`.trim());
+                    }}
                     className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
                   />
                 </div>

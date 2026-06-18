@@ -651,15 +651,28 @@ const Apply = () => {
                   </div> */}
 
                       {/* Credit Hours & Price — auto-filled read-only */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Credit Hours
+                      Credits
                     </label>
                     <input
                       type="text"
-                      name="creditHours"
-                      value={formData.creditHours}
+                      name="credits"
+                      value={formData.creditHours ? String(formData.creditHours).split(' ')[0] : ''}
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
+                      placeholder="Auto-filled"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Hours
+                    </label>
+                    <input
+                      type="text"
+                      name="hours"
+                      value={formData.creditHours ? String(formData.creditHours).split(' ').slice(1).join(' ') : ''}
                       readOnly
                       className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-sm outline-none font-medium cursor-not-allowed text-gray-600"
                       placeholder="Auto-filled"
@@ -973,7 +986,8 @@ const Apply = () => {
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Course Name</span><span className="text-gray-800 font-semibold">{formData.programme || '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Course Start Date</span><span className="text-gray-800 font-semibold">{formData.courseStartDate || '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Course End Date</span><span className="text-gray-800 font-semibold">{formData.courseEndDate || '—'}</span></div>
-                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Credit Hours</span><span className="text-gray-800 font-semibold">{formData.creditHours || '—'}</span></div>
+                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Credits</span><span className="text-gray-800 font-semibold">{formData.creditHours ? String(formData.creditHours).split(' ')[0] : '—'}</span></div>
+                  <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Hours</span><span className="text-gray-800 font-semibold">{formData.creditHours ? String(formData.creditHours).split(' ').slice(1).join(' ') : '—'}</span></div>
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Price</span><span className="text-gray-800 font-semibold">{formData.price || '—'}</span></div>
                   <div className="sm:col-span-2"><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Highest Qualification</span><span className="text-gray-800 font-semibold">{formData.highestQualification || '—'}</span></div>
                 </div>
