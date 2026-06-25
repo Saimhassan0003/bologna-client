@@ -53,6 +53,10 @@ const Apply = () => {
   const [privacyConsent, setPrivacyConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [docsUploaded, setDocsUploaded] = useState(false);
+  const [submissionTime, setSubmissionTime] = useState(null);
+  const [submittedAppId, setSubmittedAppId] = useState(null); // MongoDB _id of the submitted application
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, expired: false });
   const [errorMsg, setErrorMsg] = useState('');
 
   // Academic Options from DB
@@ -64,7 +68,7 @@ const Apply = () => {
   const [centres, setCentres] = useState([]);
 
   useEffect(() => {
-    const fetchAcademicOptions = async () => {
+    const fetchAcademicOptions = async (attempt = 1) => {
       try {
         const response = await axios.get(`${API_URL}/api/options`);
         if (response.data) {
@@ -74,22 +78,29 @@ const Apply = () => {
           if (dbIntakes?.length > 0) setAllIntakes(dbIntakes);
         }
       } catch (err) {
-        console.error('Failed to load customizable academic options:', err);
+        console.error(`Failed to load academic options (attempt ${attempt}):`, err);
+        if (attempt < 4) {
+          setTimeout(() => fetchAcademicOptions(attempt + 1), attempt * 2000);
+        }
       }
     };
 
-    const fetchCentres = async () => {
+    const fetchCentres = async (attempt = 1) => {
       try {
         const response = await axios.get(`${API_URL}/api/centres/public`);
         if (response.data) setCentres(response.data);
       } catch (err) {
-        console.error('Failed to load centres:', err);
+        console.error(`Failed to load centres (attempt ${attempt}):`, err);
+        if (attempt < 4) {
+          setTimeout(() => fetchCentres(attempt + 1), attempt * 2000);
+        }
       }
     };
 
     fetchAcademicOptions();
     fetchCentres();
   }, []);
+
 
   // Filtered programmes based on selected department (Programme type)
   const filteredProgrammes = allProgrammes
@@ -129,7 +140,7 @@ const Apply = () => {
       return true;
     }
     if (step === 5)
-      return !!(profilePicture && passportCopy && resume && transcript1 && privacyConsent);
+      return !!privacyConsent; // Documents are optional - only privacy consent is required
     return true; // step 6 review — always enabled
   })();
 
@@ -185,6 +196,63 @@ const Apply = () => {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  // Initialize timer from localStorage if present (helps on refresh)
+  useEffect(() => {
+    if (!submissionTime) {
+      try {
+        const raw = localStorage.getItem('lastApplication');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.submissionTime) setSubmissionTime(parsed.submissionTime);
+          if (typeof parsed?.docsUploaded === 'boolean') setDocsUploaded(parsed.docsUploaded);
+        }
+      } catch (e) {}
+    }
+  }, [submissionTime]);
+
+  // Timer effect for pending documents
+  useEffect(() => {
+    if (!isSuccess || docsUploaded || !submissionTime) return;
+
+    // Calculate deadline: add 2 months to submissionTime
+    const deadline = new Date(submissionTime);
+    deadline.setMonth(deadline.getMonth() + 2);
+
+    const update = () => {
+      const now = Date.now();
+      const diff = deadline.getTime() - now;
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, expired: true });
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      setTimeLeft({ days, hours, minutes, expired: false });
+    };
+
+    update();
+    const iv = setInterval(update, 1000);
+    return () => clearInterval(iv);
+  }, [isSuccess, docsUploaded, submissionTime]);
+
+  // If user uploads files later while viewing the form (after initial submission), mark docsUploaded true
+  useEffect(() => {
+    if (isSuccess && !docsUploaded) {
+      const nowUploaded = !!(profilePicture && passportCopy && resume && transcript1);
+      if (nowUploaded) {
+        setDocsUploaded(true);
+        // update localStorage record
+        try {
+          const raw = localStorage.getItem('lastApplication');
+          const parsed = raw ? JSON.parse(raw) : {};
+          parsed.docsUploaded = true;
+          localStorage.setItem('lastApplication', JSON.stringify(parsed));
+        } catch (e) {}
+      }
+    }
+  }, [profilePicture, passportCopy, resume, transcript1, isSuccess, docsUploaded]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -246,31 +314,82 @@ const Apply = () => {
       return;
     }
 
-    if (!profilePicture || !passportCopy || !resume || !transcript1) {
-      setErrorMsg('Please upload all required files (Profile Picture, ID Copy, Resume, and Transcript 1).');
-      setIsSubmitting(false);
+    // If user is returning to upload documents for an already-submitted application
+    if (submittedAppId) {
+      const data = new FormData();
+      if (profilePicture) data.append('profilePicture', profilePicture);
+      if (passportCopy) data.append('passportCopy', passportCopy);
+      if (resume) data.append('resume', resume);
+      if (transcript1) data.append('transcript1', transcript1);
+      if (transcript2) data.append('transcript2', transcript2);
+      if (transcript3) data.append('transcript3', transcript3);
+
+      try {
+        await axios.post(`${API_URL}/api/applications/${submittedAppId}/documents`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        const uploaded = !!(profilePicture && passportCopy && resume && transcript1);
+        setDocsUploaded(uploaded);
+        setIsSuccess(true);
+        if (uploaded) {
+          setTimeout(() => { navigate('/'); }, 5000);
+        }
+      } catch (error) {
+        console.error('Document upload failed', error);
+        setErrorMsg(error.response?.data?.message || 'Failed to upload documents. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
+
+    // Documents are now optional - no file validation needed
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
-    data.append('profilePicture', profilePicture);
-    data.append('passportCopy', passportCopy);
-    data.append('resume', resume);
-    data.append('transcript1', transcript1);
+    
+    // Append all documents - both required and optional
+    // Only append if file exists (not null/undefined)
+    if (profilePicture) data.append('profilePicture', profilePicture);
+    if (passportCopy) data.append('passportCopy', passportCopy);
+    if (resume) data.append('resume', resume);
+    if (transcript1) data.append('transcript1', transcript1);
     if (transcript2) data.append('transcript2', transcript2);
     if (transcript3) data.append('transcript3', transcript3);
 
     try {
-      await axios.post(`${API_URL}/api/applications`, data, {
+      const res = await axios.post(`${API_URL}/api/applications`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+
+      // Determine whether user uploaded documents in the documents step
+      const uploaded = !!(profilePicture && passportCopy && resume && transcript1);
+      setDocsUploaded(uploaded);
+
+      // Save the MongoDB _id so the upload button can use it
+      if (res?.data?._id) setSubmittedAppId(res.data._id);
+
+      // Use server submission timestamp when available, otherwise now
+      const submittedAt = res?.data?.submissionDate ? new Date(res.data.submissionDate).getTime() : Date.now();
+      setSubmissionTime(submittedAt);
+
+      // Persist minimal submission info so timer survives refresh
+      try {
+        localStorage.setItem('lastApplication', JSON.stringify({ submissionTime: submittedAt, docsUploaded: uploaded }));
+      } catch (e) {
+        // ignore localStorage errors
+      }
+
       setIsSuccess(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 5000);
+
+      // If all docs uploaded, redirect after brief delay
+      if (uploaded) {
+        setTimeout(() => {
+          navigate('/');
+        }, 5000);
+      }
     } catch (error) {
       console.error('Submission failed', error);
       setErrorMsg(error.response?.data?.message || 'Failed to submit application. Please try again.');
@@ -278,6 +397,7 @@ const Apply = () => {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -293,10 +413,9 @@ const Apply = () => {
           <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-uniboRed flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/" className="bg-white rounded-lg p-1.5 sm:p-2 h-12 sm:h-18 flex items-center justify-center shadow-lg border border-gray-800 hover:scale-105 transition-transform duration-350 cursor-pointer">
-                <img src={logo} alt="Institute UTAMED Logo" className="h-10 sm:h-14 w-auto object-contain" />
+                <img src={logo} alt="Logo" className="h-10 sm:h-14 w-auto object-contain" />
               </Link>
               <div>
-                <h2 className="text-lg sm:text-2xl font-serif font-bold tracking-wide">Institute UTAMED</h2>
                 <p className="text-gray-400 text-xs mt-0.5">Academic Admission Application Portal</p>
               </div>
             </div>
@@ -315,14 +434,82 @@ const Apply = () => {
 
           <div className="p-4 sm:p-8 md:p-10">
             {isSuccess ? (
-              <div className="py-8 sm:py-12 flex flex-col items-center justify-center text-center space-y-4 animate-fade-in-up">
-                <div className="w-16 sm:w-20 h-16 sm:h-20 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-4 shadow-inner">
-                  <svg className="w-8 sm:w-10 h-8 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+              // CASE: Submission completed
+              docsUploaded ? (
+                // All documents uploaded — show original success and redirect
+                <div className="py-8 sm:py-12 flex flex-col items-center justify-center text-center space-y-4 animate-fade-in-up">
+                  <div className="w-16 sm:w-20 h-16 sm:h-20 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-4 shadow-inner">
+                    <svg className="w-8 sm:w-10 h-8 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900">Application Received!</h3>
+                  <p className="text-sm sm:text-base text-gray-500 max-w-md">Your full academic profile and uploaded files have been logged. We will review your academic qualifications shortly.</p>
+                  <div className="mt-4">
+                    <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold">All Documents Submitted ✅</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-6">Redirecting to Home page...</p>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900">Application Received!</h3>
-                <p className="text-sm sm:text-base text-gray-500 max-w-md">Your full academic profile and uploaded files have been logged. We will review your academic qualifications shortly.</p>
-                <p className="text-xs sm:text-sm text-gray-400 mt-8">Redirecting to Home page...</p>
-              </div>
+              ) : (
+                // Documents missing — show pending UI with warning, timer and upload button
+                <div className="py-8 sm:py-12 flex flex-col items-center justify-center text-center space-y-6 animate-fade-in-up">
+                  <div className="w-16 sm:w-20 h-16 sm:h-20 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-2 shadow-inner">
+                    <svg className="w-8 sm:w-10 h-8 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900">Application Received!</h3>
+                  <p className="text-sm sm:text-base text-gray-700 max-w-md">Your application has been submitted. However, your documents are still pending.</p>
+
+                  {/* Orange warning banner */}
+                  <div className="w-full max-w-2xl bg-[#f97316] text-white p-4 rounded-lg shadow-md mt-2">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">⚠️</div>
+                      <div className="text-left">
+                        <div className="font-bold">Documents Not Uploaded — Status: PENDING</div>
+                        <div className="text-sm mt-1">Please upload your required documents within 2 months to complete your application process.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timer */}
+                  <div className="w-full max-w-md bg-[#0d1b2a] text-white p-4 rounded-lg shadow-inner">
+                    {timeLeft.expired ? (
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-red-400">❌ Deadline Expired</div>
+                        <div className="text-sm mt-2">Please contact support for assistance.</div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                            <div className="text-2xl font-bold">{timeLeft.days}</div>
+                            <div className="text-xs">Days</div>
+                          </div>
+                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                            <div className="text-2xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
+                            <div className="text-xs">Hours</div>
+                          </div>
+                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                            <div className="text-2xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                            <div className="text-xs">Minutes</div>
+                          </div>
+                        </div>
+                        <div className="text-sm mt-3 text-[#fce8dc]">
+                          Upload deadline: {submissionTime ? new Date(submissionTime).setMonth(new Date(submissionTime).getMonth() + 2) && new Date(new Date(submissionTime).setMonth(new Date(submissionTime).getMonth() + 2)).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="w-full max-w-md">
+                    <button
+                      onClick={() => {
+                        navigate(`/upload-documents/${submittedAppId}`);
+                      }}
+                      className="w-full bg-[#f97316] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-95 transition-colors"
+                    >
+                      Upload Documents Now →
+                    </button>
+                  </div>
+                </div>
+              )
             ) : isSubmitting ? (
               <div className="py-12 sm:py-20 flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
                 <div className="relative flex items-center justify-center">
@@ -534,7 +721,7 @@ const Apply = () => {
                           value={formData.address}
                           onChange={handleChange}
                           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none resize-none"
-                          placeholder="Piazza di Porta Ravegnana, UTAMED, BO, Italy"
+                          placeholder="Piazza di Porta Ravegnana, BO, Italy"
                         ></textarea>
                       </div>
                     </div>
@@ -829,12 +1016,11 @@ const Apply = () => {
 
                 {/* 1. Profile Picture */}
                 <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture <span className="text-uniboRed">*</span></label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture (Optional)</label>
                   <input
                     type="file"
                     name="profilePicture"
                     accept="image/*"
-                    required
                     onChange={handleFileChange}
                     className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                   />
@@ -843,12 +1029,11 @@ const Apply = () => {
 
                 {/* 2. Passport Copy */}
                 <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport <span className="text-uniboRed">*</span></label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport (Optional)</label>
                   <input
                     type="file"
                     name="passportCopy"
                     accept="image/*,application/pdf"
-                    required
                     onChange={handleFileChange}
                     className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                   />
@@ -857,12 +1042,11 @@ const Apply = () => {
 
                 {/* 3. Resume */}
                 <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV <span className="text-uniboRed">*</span></label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV (Optional)</label>
                   <input
                     type="file"
                     name="resume"
                     accept=".pdf,.doc,.docx"
-                    required
                     onChange={handleFileChange}
                     className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                   />
@@ -871,12 +1055,11 @@ const Apply = () => {
 
                 {/* 4. Transcript 1 */}
                 <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Certified Certificate/Transcript 1 <span className="text-uniboRed">*</span></label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Certified Certificate/Transcript 1 (Optional)</label>
                   <input
                     type="file"
                     name="transcript1"
                     accept="image/*,application/pdf,.doc,.docx"
-                    required
                     onChange={handleFileChange}
                     className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
                   />
@@ -915,7 +1098,7 @@ const Apply = () => {
               <div className="mt-8 border border-gray-200 rounded-xl p-6 bg-gray-50 space-y-4">
                 <h4 className="text-md sm:text-lg font-serif font-bold text-gray-900">Data Privacy and Consent Notice</h4>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Institute UTAMED respects and protects your personal data. The information collected in this application form will be used only for admission, enrollment, academic, and administrative purposes.
+                  We respect and protect your personal data. The information collected in this application form will be used only for admission, enrollment, academic, and administrative purposes.
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   By submitting this form, you agree that the institution may collect, process, store, and use your personal information in accordance with its Data Privacy Policy.

@@ -40,13 +40,13 @@ const Login = () => {
           <img 
             className="w-full h-full object-cover"
             src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
-            alt="Bologno Architecture" 
+            alt="Admissions Portal Background" 
           />
         </div>
         <div className="relative z-10 w-full flex flex-col justify-between p-12 lg:p-24">
           <div className="bg-white p-3 rounded-xl shadow-xl inline-block border border-gray-100 max-w-fit">
             <Link to="/" className="inline-flex items-center hover:scale-105 transition-transform duration-350 cursor-pointer">
-              <img src={logo} alt="Institute UTAMED" className="h-24 w-auto object-contain" />
+              <img src={logo} alt="Logo" className="h-24 w-auto object-contain" />
             </Link>
           </div>
           <div className="mt-auto">
@@ -69,7 +69,7 @@ const Login = () => {
         <div className="max-w-md w-full z-10">
           <div className="lg:hidden mb-8 sm:mb-12 flex justify-center">
             <Link to="/" className="inline-flex items-center bg-white p-3 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-transform duration-350 cursor-pointer">
-              <img src={logo} alt="Institute UTAMED" className="h-16 sm:h-20 w-auto object-contain" />
+              <img src={logo} alt="Logo" className="h-16 sm:h-20 w-auto object-contain" />
             </Link>
           </div>
 
@@ -108,7 +108,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none shadow-sm"
-                  placeholder="admin@bologno.com"
+                  placeholder="admin@UTAMED.com"
                 />
               </div>
 

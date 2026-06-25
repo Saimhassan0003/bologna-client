@@ -792,11 +792,10 @@ const Dashboard = () => {
           <div className="p-5 border-b border-gray-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Link to="/" className="h-16 bg-white rounded-lg p-1.5 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-350 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src={logo} alt="Institute UTAMED" className="h-13 w-auto object-contain" />
+                <img src={logo} alt="Logo" className="h-13 w-auto object-contain" />
               </Link>
               <div className="flex flex-col">
-                <span className="text-white font-bold text-xs tracking-wider font-serif">INSTITUTE</span>
-                <span className="text-gray-400 text-[10px] font-bold">Admissions Admin</span>
+                <span className="text-gray-400 text-[10px] font-bold">Registry Officer</span>
               </div>
             </div>
             {/* Close Button for Mobile Drawer */}
@@ -899,7 +898,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-white">Registry Officer</p>
-              <p className="text-[10px] text-gray-500 font-medium">admin@bologno.com</p>
+              <p className="text-[10px] text-gray-500 font-medium">admin@UTAMED.com</p>
             </div>
           </div>
           <button
@@ -928,14 +927,12 @@ const Dashboard = () => {
             </button>
             {/* Logo on Mobile */}
             <Link to="/" className="h-12 bg-white rounded-md p-1 flex items-center justify-center border border-gray-200 shadow-sm hover:scale-105 transition-transform duration-350 cursor-pointer">
-              <img src={logo} alt="Institute UTAMED" className="h-10 w-auto object-contain" />
+              <img src={logo} alt="Logo" className="h-10 w-auto object-contain" />
             </Link>
-            <span className="text-gray-900 font-bold text-sm">Institute UTAMED Admin</span>
+            <span className="text-gray-900 font-bold text-sm">Admin Portal</span>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <span className="text-gray-500 font-semibold text-xs tracking-wider uppercase">Institute UTAMED</span>
-            <span className="text-gray-300">|</span>
             <span className="text-gray-900 font-bold text-sm">Admissions Portal</span>
           </div>
 
@@ -2482,6 +2479,35 @@ const Dashboard = () => {
 
               </div>
 
+              {/* Document Upload Link for All Applications */}
+              <div className="border border-red-100 bg-red-50 p-5 rounded-xl mb-6">
+                <h5 className="font-serif font-bold text-red-900 mb-2 text-sm">Document Upload Link</h5>
+                <p className="text-xs text-red-700 mb-4">
+                  You can manually share this unique upload link with the candidate:
+                </p>
+                <div className="flex items-center gap-3">
+                  <a 
+                    href={selectedApp.uploadLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 truncate text-xs font-mono text-blue-700 hover:underline bg-white px-3 py-2 border border-red-200 rounded-lg"
+                  >
+                    {selectedApp.uploadLink}
+                  </a>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedApp.uploadLink);
+                      setNotification({ message: 'Upload link copied to clipboard!', type: 'success' });
+                      setTimeout(() => setNotification(null), 4000);
+                    }}
+                    className="px-4 py-2 bg-uniboRed hover:bg-red-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+
               {/* Certified Files Grid */}
               <div className="border-t border-gray-100 pt-6 border-b pb-6">
                 <h5 className="font-serif font-bold text-gray-900 mb-4 text-base">Certified Registration Documents</h5>
@@ -2889,7 +2915,7 @@ const Dashboard = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Centre Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. UTAMED Study Centre Nairobi"
+                  placeholder="e.g. Study Centre Nairobi"
                   value={newCentreName}
                   onChange={(e) => setNewCentreName(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"

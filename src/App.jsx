@@ -5,6 +5,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Apply from './pages/Apply';
+import UploadDocuments from './pages/UploadDocuments';
+import PostalRequestForm from './pages/PostalRequestForm';
+import PostalRequestTrack from './pages/PostalRequestTrack';
+import PostalRequestDashboard from './pages/PostalRequestDashboard';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = React.useContext(AuthContext);
@@ -21,6 +25,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/apply" element={<Apply />} />
+          <Route path="/upload-documents/:applicationId" element={<UploadDocuments />} />
+          <Route path="/postal-request" element={<PostalRequestForm />} />
+          <Route path="/postal-request/track" element={<PostalRequestTrack />} />
+          <Route path="/postal-request/dashboard/:id" element={<PostalRequestDashboard />} />
           <Route path="/admin" element={<Login />} />
           <Route 
             path="/dashboard" 
