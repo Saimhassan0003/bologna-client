@@ -94,8 +94,24 @@ const UploadDocuments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMsg('');
+
+    // Enforce that all missing documents must be uploaded
+    const missing = application.missingDocuments || [];
+    const missingUploads = [];
+    if (missing.includes('profilePicture') && !profilePicture) missingUploads.push('Profile Picture');
+    if (missing.includes('passportCopy') && !passportCopy) missingUploads.push('Passport Copy');
+    if (missing.includes('resume') && !resume) missingUploads.push('Resume / CV');
+    if (missing.includes('transcript1') && !transcript1) missingUploads.push('Transcript 1');
+    if (missing.includes('transcript2') && !transcript2) missingUploads.push('Transcript 2');
+    if (missing.includes('transcript3') && !transcript3) missingUploads.push('Transcript 3');
+
+    if (missingUploads.length > 0) {
+      setErrorMsg(`Please upload all missing files. Required: ${missingUploads.join(', ')}`);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const data = new FormData();
     if (profilePicture) data.append('profilePicture', profilePicture);
@@ -253,45 +269,55 @@ const UploadDocuments = () => {
                   <div>
                     <h3 className="text-lg font-serif font-bold text-gray-900 mb-2">Upload Missing Documents</h3>
                     <p className="text-xs text-gray-500">Max file size: 10MB per document.</p>
-                  </div>
+                  </div>                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {application.missingDocuments?.includes('profilePicture') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="profilePicture" required accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {profilePicture && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {profilePicture.name}</p>}
+                      </div>
+                    )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture</label>
-                      <input type="file" name="profilePicture" accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {profilePicture && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {profilePicture.name}</p>}
-                    </div>
+                    {application.missingDocuments?.includes('passportCopy') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="passportCopy" required accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {passportCopy && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {passportCopy.name}</p>}
+                      </div>
+                    )}
 
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport</label>
-                      <input type="file" name="passportCopy" accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {passportCopy && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {passportCopy.name}</p>}
-                    </div>
+                    {application.missingDocuments?.includes('resume') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="resume" required accept=".pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {resume && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {resume.name}</p>}
+                      </div>
+                    )}
 
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV</label>
-                      <input type="file" name="resume" accept=".pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {resume && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {resume.name}</p>}
-                    </div>
+                    {application.missingDocuments?.includes('transcript1') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 1 <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="transcript1" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {transcript1 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript1.name}</p>}
+                      </div>
+                    )}
 
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 1</label>
-                      <input type="file" name="transcript1" accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {transcript1 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript1.name}</p>}
-                    </div>
+                    {application.missingDocuments?.includes('transcript2') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 2 <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="transcript2" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {transcript2 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript2.name}</p>}
+                      </div>
+                    )}
 
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 2</label>
-                      <input type="file" name="transcript2" accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {transcript2 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript2.name}</p>}
-                    </div>
-
-                    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                      <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 3</label>
-                      <input type="file" name="transcript3" accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
-                      {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
-                    </div>
-                  </div>
+                    {application.missingDocuments?.includes('transcript3') && (
+                      <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 3 <span className="text-uniboRed">*</span></label>
+                        <input type="file" name="transcript3" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
+                      </div>
+                    )}
+                  </div>        </div>
 
                   <div className="pt-6 border-t border-gray-200 flex justify-end">
                     <button
