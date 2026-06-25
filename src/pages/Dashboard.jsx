@@ -2482,7 +2482,7 @@ const Dashboard = () => {
               </div>
 
               {/* Document Upload Link for Pending Applications */}
-              {selectedApp.status === 'PendingDocuments' && (
+              {selectedApp.uploadLink && selectedApp.status === 'PendingDocuments' && (
                 <div className="border border-red-100 bg-red-50 p-5 rounded-xl mb-6">
                   <h5 className="font-serif font-bold text-red-900 mb-2 text-sm">Document Upload Link</h5>
                   <p className="text-xs text-red-700 mb-4">
