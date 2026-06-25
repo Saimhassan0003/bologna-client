@@ -1220,7 +1220,8 @@ const Dashboard = () => {
                       className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
                     >
                       <option value="all">All Statuses</option>
-                      <option value="Pending">Pending</option>
+                      <option value="Submitted">Submitted (All Docs Uploaded)</option>
+                      <option value="PendingDocuments">Pending Documents</option>
                       <option value="Reviewed">Reviewed</option>
                       <option value="Accepted">Accepted</option>
                       <option value="Rejected">Rejected</option>
@@ -2292,7 +2293,8 @@ const Dashboard = () => {
                                     onChange={(e) => handleStatusChange(app._id, e.target.value)}
                                     className="pl-2 pr-7 py-1 text-xs border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-semibold"
                                   >
-                                    <option value="Pending">Pending</option>
+                                    <option value="Submitted">Submitted</option>
+                                    <option value="PendingDocuments">Pending Documents</option>
                                     <option value="Reviewed">Reviewed</option>
                                     <option value="Accepted">Accepted</option>
                                     <option value="Rejected">Rejected</option>
@@ -2599,7 +2601,8 @@ const Dashboard = () => {
                   onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
                   className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-medium"
                 >
-                  <option value="Pending">Pending</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="PendingDocuments">Pending Documents</option>
                   <option value="Reviewed">Reviewed</option>
                   <option value="Accepted">Accepted</option>
                   <option value="Rejected">Rejected</option>
