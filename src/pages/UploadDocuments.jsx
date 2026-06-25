@@ -15,6 +15,7 @@ const UploadDocuments = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [alreadyUploaded, setAlreadyUploaded] = useState(false);
 
   // Files
   const [profilePicture, setProfilePicture] = useState(null);
@@ -34,7 +35,10 @@ const UploadDocuments = () => {
         setApplication(response.data);
       } catch (err) {
         console.error('Failed to load application:', err);
-        setErrorMsg('Application not found or server error.');
+        if (err.response?.status === 400 && err.response?.data?.message?.includes('already')) {
+          setAlreadyUploaded(true);
+        }
+        setErrorMsg(err.response?.data?.message || 'Application not found or server error.');
       } finally {
         setLoading(false);
       }
@@ -123,6 +127,29 @@ const UploadDocuments = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="w-16 h-16 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (alreadyUploaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <Navbar />
+        <main className="flex-grow py-12 px-4 text-center flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-2 shadow-inner">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Documents Already Uploaded</h2>
+          <p className="text-gray-500 mt-2 max-w-md mx-auto">{errorMsg}</p>
+          <div className="pt-4">
+            <Link to="/" className="inline-block bg-uniboRed hover:bg-uniboDarkRed text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow">
+              Go to Home
+            </Link>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
