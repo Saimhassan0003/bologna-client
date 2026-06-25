@@ -7,6 +7,29 @@ import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
 import countries from '../data/countries.json';
 
+const phoneCodes = [
+  { code: 'PK', name: 'Pakistan', dial_code: '+92', flag: '🇵🇰' },
+  { code: 'AF', name: 'Afghanistan', dial_code: '+93', flag: '🇦🇫' },
+  { code: 'IT', name: 'Italy', dial_code: '+39', flag: '🇮🇹' },
+  { code: 'GB', name: 'United Kingdom', dial_code: '+44', flag: '🇬🇧' },
+  { code: 'US', name: 'United States', dial_code: '+1', flag: '🇺🇸' },
+  { code: 'AE', name: 'United Arab Emirates', dial_code: '+971', flag: '🇦🇪' },
+  { code: 'SA', name: 'Saudi Arabia', dial_code: '+966', flag: '🇸🇦' },
+  { code: 'IN', name: 'India', dial_code: '+91', flag: '🇮🇳' },
+  { code: 'BD', name: 'Bangladesh', dial_code: '+880', flag: '🇧🇩' },
+  { code: 'OM', name: 'Oman', dial_code: '+968', flag: '🇴🇲' },
+  { code: 'QA', name: 'Qatar', dial_code: '+974', flag: '🇶🇦' },
+  { code: 'BH', name: 'Bahrain', dial_code: '+973', flag: '🇧🇭' },
+  { code: 'KW', name: 'Kuwait', dial_code: '+965', flag: '🇰🇼' },
+  { code: 'DE', name: 'Germany', dial_code: '+49', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', dial_code: '+33', flag: '🇫🇷' },
+  { code: 'CN', name: 'China', dial_code: '+86', flag: '🇨🇳' },
+  { code: 'MY', name: 'Malaysia', dial_code: '+60', flag: '🇲🇾' },
+  { code: 'TR', name: 'Turkey', dial_code: '+90', flag: '🇹🇷' },
+  { code: 'CA', name: 'Canada', dial_code: '+1', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', dial_code: '+61', flag: '🇦🇺' },
+];
+
 const Apply = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -58,6 +81,17 @@ const Apply = () => {
   const [submittedAppId, setSubmittedAppId] = useState(null); // MongoDB _id of the submitted application
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, expired: false });
   const [errorMsg, setErrorMsg] = useState('');
+
+  const [phonePrefix, setPhonePrefix] = useState('+92');
+  const [phoneBody, setPhoneBody] = useState('');
+
+  // Sync phone code prefix and body to main phone field
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      phone: phoneBody ? `${phonePrefix} ${phoneBody}`.trim() : ''
+    }));
+  }, [phonePrefix, phoneBody]);
 
   // Academic Options from DB
   const [departments, setDepartments] = useState([]);
@@ -659,15 +693,33 @@ const Apply = () => {
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           Contact Telephone Number <span className="text-uniboRed">*</span>
                         </label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          required
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
-                          placeholder="+39 333 123 4567"
-                        />
+                        <div className="flex gap-2">
+                          <div className="relative w-[110px] shrink-0">
+                            <select
+                              value={phonePrefix}
+                              onChange={(e) => setPhonePrefix(e.target.value)}
+                              className="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none font-medium appearance-none cursor-pointer"
+                            >
+                              {phoneCodes.map((c) => (
+                                <option key={c.code} value={c.dial_code}>
+                                  {c.flag} {c.dial_code}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-500">
+                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                          </div>
+                          <input
+                            type="tel"
+                            name="phoneBody"
+                            required
+                            value={phoneBody}
+                            onChange={(e) => setPhoneBody(e.target.value)}
+                            className="flex-grow px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                            placeholder="333 123 4567"
+                          />
+                        </div>
                       </div>
 
                       <div>
@@ -740,7 +792,7 @@ const Apply = () => {
                       {/* Programme Type */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Programme type <span className="text-uniboRed">*</span>
+                          Programme Type <span className="text-uniboRed">*</span>
                         </label>
                         <div className="relative">
                           <select
