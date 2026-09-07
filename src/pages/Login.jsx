@@ -63,8 +63,8 @@ const Login = () => {
       {/* Right side: Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-24 bg-gray-50 relative overflow-hidden">
         {/* Subtle decorative background for right side */}
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-uniboRed/5 rounded-full blur-3xl -z-10"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-uniboRed/5 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brandBlue/5 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brandBlue/5 rounded-full blur-3xl -z-10"></div>
 
         <div className="max-w-md w-full z-10">
           <div className="lg:hidden mb-8 sm:mb-12 flex justify-center">
@@ -80,15 +80,15 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
+              <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-red-700 font-medium">{error}</p>
+                    <p className="text-sm text-blue-700 font-medium">{error}</p>
                   </div>
                 </div>
               </div>
@@ -107,7 +107,7 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none shadow-sm"
+                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue transition-all text-sm outline-none shadow-sm"
                   placeholder="admin@UTAMED.com"
                 />
               </div>
@@ -124,7 +124,7 @@ const Login = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none shadow-sm"
+                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue transition-all text-sm outline-none shadow-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -134,7 +134,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg text-sm font-bold uppercase tracking-wide text-white bg-uniboRed hover:bg-uniboDarkRed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uniboRed transition-all duration-300 shadow-md hover:shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
+                className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg text-sm font-bold uppercase tracking-wide text-white bg-brandBlue hover:bg-brandDarkBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brandBlue transition-all duration-300 shadow-md hover:shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'transform hover:-translate-y-0.5'}`}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -148,7 +148,7 @@ const Login = () => {
             </div>
             
             <div className="text-center mt-8">
-              <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-uniboRed transition-colors">
+              <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-brandBlue transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Return to Public Website
               </Link>

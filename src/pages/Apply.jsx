@@ -439,12 +439,12 @@ const Apply = () => {
 
       <main className="flex-grow py-6 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Decorative Skewed Banner */}
-        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-uniboRed transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
+        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-brandBlue transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
 
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-10 relative">
 
           {/* Header */}
-          <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-uniboRed flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-brandBlue flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/" className="bg-white rounded-lg p-1.5 sm:p-2 h-12 sm:h-18 flex items-center justify-center shadow-lg border border-gray-800 hover:scale-105 transition-transform duration-350 cursor-pointer">
                 <img src={logo} alt="Logo" className="h-10 sm:h-14 w-auto object-contain" />
@@ -453,7 +453,7 @@ const Apply = () => {
                 <p className="text-gray-400 text-xs mt-0.5">Academic Admission Application Portal</p>
               </div>
             </div>
-            <div className="mt-3 sm:mt-4 md:mt-0 px-3 py-1 bg-uniboRed text-xs font-extrabold uppercase rounded-full">
+            <div className="mt-3 sm:mt-4 md:mt-0 px-3 py-1 bg-brandBlue text-xs font-extrabold uppercase rounded-full">
               Step {step} of 6
             </div>
           </div>
@@ -461,7 +461,7 @@ const Apply = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2">
             <div
-              className="bg-uniboRed h-2 transition-all duration-500 ease-out"
+              className="bg-brandBlue h-2 transition-all duration-500 ease-out"
               style={{ width: `${(step / 6) * 100}%` }}
             ></div>
           </div>
@@ -506,7 +506,7 @@ const Apply = () => {
                   <div className="w-full max-w-md bg-[#0d1b2a] text-white p-4 rounded-lg shadow-inner">
                     {timeLeft.expired ? (
                       <div className="text-center">
-                        <div className="text-xl font-bold text-red-400">❌ Deadline Expired</div>
+                        <div className="text-xl font-bold text-blue-400">❌ Deadline Expired</div>
                         <div className="text-sm mt-2">Please contact support for assistance.</div>
                       </div>
                     ) : (
@@ -547,8 +547,8 @@ const Apply = () => {
             ) : isSubmitting ? (
               <div className="py-12 sm:py-20 flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
                 <div className="relative flex items-center justify-center">
-                  <div className="w-20 h-20 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
-                  <div className="absolute w-12 h-12 bg-uniboRed/10 rounded-full"></div>
+                  <div className="w-20 h-20 border-4 border-brandBlue/20 border-t-brandBlue rounded-full animate-spin"></div>
+                  <div className="absolute w-12 h-12 bg-brandBlue/10 rounded-full"></div>
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl sm:text-2xl font-serif font-bold text-gray-900">Submitting Your Application</h3>
@@ -558,15 +558,15 @@ const Apply = () => {
             ) : (
               <div className="space-y-8">
                 {errorMsg && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+                  <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-md">
                     <div className="flex">
                       <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
+                        <p className="text-sm text-blue-700 font-medium">{errorMsg}</p>
                       </div>
                     </div>
                   </div>
@@ -583,7 +583,7 @@ const Apply = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          First Name <span className="text-uniboRed">*</span>
+                          First Name <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -591,14 +591,14 @@ const Apply = () => {
                           required
                           value={formData.firstName}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                           placeholder="e.g. Leonardo"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Last Name <span className="text-uniboRed">*</span>
+                          Last Name <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -606,14 +606,14 @@ const Apply = () => {
                           required
                           value={formData.lastName}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                           placeholder="e.g. da Vinci"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Name to be printed on the certificate <span className="text-uniboRed">*</span>
+                          Name to be printed on the certificate <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -621,14 +621,14 @@ const Apply = () => {
                           required
                           value={formData.certificateName}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                           placeholder="e.g. Leonardo da Vinci"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Date of Birth <span className="text-uniboRed">*</span>
+                          Date of Birth <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="date"
@@ -636,20 +636,20 @@ const Apply = () => {
                           required
                           value={formData.dob}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Gender <span className="text-uniboRed">*</span>
+                          Gender <span className="text-brandBlue">*</span>
                         </label>
                         <div className="relative">
                           <select
                             name="gender"
                             value={formData.gender}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
                             <option value="">-- Select Gender --</option>
                             <option value="Male">Male</option>
@@ -676,7 +676,7 @@ const Apply = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Email Address <span className="text-uniboRed">*</span>
+                          Email Address <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="email"
@@ -684,21 +684,21 @@ const Apply = () => {
                           required
                           value={formData.email}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                           placeholder="you@example.com"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Contact Telephone Number <span className="text-uniboRed">*</span>
+                          Contact Telephone Number <span className="text-brandBlue">*</span>
                         </label>
                         <div className="flex gap-2">
                           <div className="relative w-[110px] shrink-0">
                             <select
                               value={phonePrefix}
                               onChange={(e) => setPhonePrefix(e.target.value)}
-                              className="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none font-medium appearance-none cursor-pointer"
+                              className="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none font-medium appearance-none cursor-pointer"
                             >
                               {phoneCodes.map((c) => (
                                 <option key={c.code} value={c.dial_code}>
@@ -716,7 +716,7 @@ const Apply = () => {
                             required
                             value={phoneBody}
                             onChange={(e) => setPhoneBody(e.target.value)}
-                            className="flex-grow px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                            className="flex-grow px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                             placeholder="333 123 4567"
                           />
                         </div>
@@ -724,7 +724,7 @@ const Apply = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Passport/ID Number <span className="text-uniboRed">*</span>
+                          Passport/ID Number <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -732,14 +732,14 @@ const Apply = () => {
                           required
                           value={formData.passportNumber}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                           placeholder="YA123456"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Country of Residence <span className="text-uniboRed">*</span>
+                          Country of Residence <span className="text-brandBlue">*</span>
                         </label>
                         <div className="relative">
                           <select
@@ -747,7 +747,7 @@ const Apply = () => {
                             required
                             value={formData.country}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
                             <option value="">-- Select Country --</option>
                             {countries.map((c) => (
@@ -764,7 +764,7 @@ const Apply = () => {
 
                       <div className="md:col-span-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Full Home Address <span className="text-uniboRed">*</span>
+                          Full Home Address <span className="text-brandBlue">*</span>
                         </label>
                         <textarea
                           name="address"
@@ -772,7 +772,7 @@ const Apply = () => {
                           rows="3"
                           value={formData.address}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none resize-none"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none resize-none"
                           placeholder="Piazza di Porta Ravegnana, BO, Italy"
                         ></textarea>
                       </div>
@@ -792,14 +792,14 @@ const Apply = () => {
                       {/* Programme Type */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Programme Type <span className="text-uniboRed">*</span>
+                          Programme Type <span className="text-brandBlue">*</span>
                         </label>
                         <div className="relative">
                           <select
                             name="department"
                             value={formData.department}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
                             <option value="">Choose</option>
                             {departments.map((dept, i) => (
@@ -815,14 +815,14 @@ const Apply = () => {
                       {/* Course Name */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Course Name <span className="text-uniboRed">*</span>
+                          Course Name <span className="text-brandBlue">*</span>
                         </label>
                         <div className="relative">
                           <select
                             name="programme"
                             value={formData.programme}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none appearance-none font-medium"
                           >
                             <option value="">Choose</option>
                             {uniqueProgrammes.map((p) => (
@@ -838,7 +838,7 @@ const Apply = () => {
                       {/* Course Start Date — read-only, auto-filled */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Course Start Date <span className="text-uniboRed">*</span>
+                          Course Start Date <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -853,7 +853,7 @@ const Apply = () => {
                       {/* Course End Date — read-only, auto-filled */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Course End Date <span className="text-uniboRed">*</span>
+                          Course End Date <span className="text-brandBlue">*</span>
                         </label>
                         <input
                           type="text"
@@ -868,7 +868,7 @@ const Apply = () => {
                       {/* Intake */}
                       {/* <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                          Intake <span className="text-uniboRed">*</span>
+                          Intake <span className="text-brandBlue">*</span>
                         </label>
                         <div className="relative"> */}
                       {/* <select
@@ -876,7 +876,7 @@ const Apply = () => {
                             value={formData.intake}
                             onChange={handleChange}
                             disabled={!formData.programme}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none appearance-none font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none appearance-none font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                           >
                             <option value="">-- Select Intake --</option>
                             {filteredIntakes.map((intake) => (
@@ -938,7 +938,7 @@ const Apply = () => {
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Highest Qualification <span className="text-uniboRed">*</span>
+                    Highest Qualification <span className="text-brandBlue">*</span>
                   </label>
                   <input
                     type="text"
@@ -946,7 +946,7 @@ const Apply = () => {
                     required
                     value={formData.highestQualification}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed focus:bg-white transition-all text-sm outline-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue focus:bg-white transition-all text-sm outline-none"
                     placeholder="e.g. Master of Science in Informatics"
                   />
                 </div>
@@ -965,7 +965,7 @@ const Apply = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Are you registering via an Approved Centre? <span className="text-uniboRed">*</span>
+                    Are you registering via an Approved Centre? <span className="text-brandBlue">*</span>
                   </label>
                   <div className="flex gap-6">
                     <label className="flex items-center gap-2 cursor-pointer font-medium text-sm text-gray-800">
@@ -975,7 +975,7 @@ const Apply = () => {
                         value="Yes"
                         checked={formData.registrationViaCentre === 'Yes'}
                         onChange={handleChange}
-                        className="w-4 h-4 text-uniboRed focus:ring-uniboRed border-gray-300"
+                        className="w-4 h-4 text-brandBlue focus:ring-brandBlue border-gray-300"
                       />
                       Yes
                     </label>
@@ -986,7 +986,7 @@ const Apply = () => {
                         value="No"
                         checked={formData.registrationViaCentre === 'No'}
                         onChange={handleChange}
-                        className="w-4 h-4 text-uniboRed focus:ring-uniboRed border-gray-300"
+                        className="w-4 h-4 text-brandBlue focus:ring-brandBlue border-gray-300"
                       />
                       No
                     </label>
@@ -998,14 +998,14 @@ const Apply = () => {
                     {/* Centre Name Dropdown */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Select Approved Centre <span className="text-uniboRed">*</span>
+                        Select Approved Centre <span className="text-brandBlue">*</span>
                       </label>
                       <div className="relative">
                         <select
                           name="centreName"
                           value={formData.centreName}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-uniboRed focus:border-uniboRed transition-all text-sm outline-none appearance-none font-medium"
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue transition-all text-sm outline-none appearance-none font-medium"
                         >
                           <option value="">-- Select a Centre --</option>
                           {centres.map((c) => (
@@ -1074,7 +1074,7 @@ const Apply = () => {
                     name="profilePicture"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {profilePicture && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {profilePicture.name}</p>}
                 </div>
@@ -1087,7 +1087,7 @@ const Apply = () => {
                     name="passportCopy"
                     accept="image/*,application/pdf"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {passportCopy && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {passportCopy.name}</p>}
                 </div>
@@ -1100,7 +1100,7 @@ const Apply = () => {
                     name="resume"
                     accept=".pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {resume && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {resume.name}</p>}
                 </div>
@@ -1113,7 +1113,7 @@ const Apply = () => {
                     name="transcript1"
                     accept="image/*,application/pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {transcript1 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript1.name}</p>}
                 </div>
@@ -1126,7 +1126,7 @@ const Apply = () => {
                     name="transcript2"
                     accept="image/*,application/pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {transcript2 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript2.name}</p>}
                 </div>
@@ -1139,7 +1139,7 @@ const Apply = () => {
                     name="transcript3"
                     accept="image/*,application/pdf,.doc,.docx"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white hover:file:bg-uniboDarkRed cursor-pointer"
+                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-brandDarkBlue cursor-pointer"
                   />
                   {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
                 </div>
@@ -1161,10 +1161,10 @@ const Apply = () => {
                     required
                     checked={privacyConsent}
                     onChange={(e) => setPrivacyConsent(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-uniboRed focus:ring-uniboRed border-gray-300 rounded cursor-pointer"
+                    className="mt-1 w-4 h-4 text-brandBlue focus:ring-brandBlue border-gray-300 rounded cursor-pointer"
                   />
                   <span className="text-xs sm:text-sm text-gray-700 font-medium select-none">
-                    I have read and agree to the Data Privacy Notice and consent to the processing of my personal data. <span className="text-uniboRed">*</span>
+                    I have read and agree to the Data Privacy Notice and consent to the processing of my personal data. <span className="text-brandBlue">*</span>
                   </span>
                 </label>
               </div>
@@ -1184,7 +1184,7 @@ const Apply = () => {
               <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
                   <h4 className="text-sm font-bold uppercase tracking-wide">1. Personal Details</h4>
-                  <button type="button" onClick={() => setStep(1)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
+                  <button type="button" onClick={() => setStep(1)} className="text-xs bg-brandBlue hover:bg-blue-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-5 text-sm">
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">First Name</span><span className="text-gray-800 font-semibold">{formData.firstName || '—'}</span></div>
@@ -1199,7 +1199,7 @@ const Apply = () => {
               <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
                   <h4 className="text-sm font-bold uppercase tracking-wide">2. Contact &amp; Identification</h4>
-                  <button type="button" onClick={() => setStep(2)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
+                  <button type="button" onClick={() => setStep(2)} className="text-xs bg-brandBlue hover:bg-blue-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-5 text-sm">
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Email Address</span><span className="text-gray-800 font-semibold">{formData.email || '—'}</span></div>
@@ -1214,7 +1214,7 @@ const Apply = () => {
               <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
                   <h4 className="text-sm font-bold uppercase tracking-wide">3. Academic Information</h4>
-                  <button type="button" onClick={() => setStep(3)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
+                  <button type="button" onClick={() => setStep(3)} className="text-xs bg-brandBlue hover:bg-blue-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-5 text-sm">
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Programme Type</span><span className="text-gray-800 font-semibold">{formData.department || '—'}</span></div>
@@ -1232,7 +1232,7 @@ const Apply = () => {
               <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
                   <h4 className="text-sm font-bold uppercase tracking-wide">4. Registration Method</h4>
-                  <button type="button" onClick={() => setStep(4)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
+                  <button type="button" onClick={() => setStep(4)} className="text-xs bg-brandBlue hover:bg-blue-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-5 text-sm">
                   <div><span className="text-xs font-bold text-gray-400 uppercase tracking-wide block">Via Approved Centre?</span><span className={`font-semibold ${formData.registrationViaCentre === 'Yes' ? 'text-amber-700' : 'text-gray-800'}`}>{formData.registrationViaCentre || '—'}</span></div>
@@ -1250,7 +1250,7 @@ const Apply = () => {
               <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
                   <h4 className="text-sm font-bold uppercase tracking-wide">5. Uploaded Documents</h4>
-                  <button type="button" onClick={() => setStep(5)} className="text-xs bg-uniboRed hover:bg-red-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
+                  <button type="button" onClick={() => setStep(5)} className="text-xs bg-brandBlue hover:bg-blue-700 text-white px-3 py-1 rounded-md font-bold transition-colors cursor-pointer">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5 text-sm">
                   {[
@@ -1293,7 +1293,7 @@ const Apply = () => {
                 &larr; Previous Step
               </button>
             ) : (
-              <Link to="/" className="w-full sm:w-auto text-xs sm:text-sm font-semibold text-gray-500 hover:text-uniboRed transition-colors text-center">
+              <Link to="/" className="w-full sm:w-auto text-xs sm:text-sm font-semibold text-gray-500 hover:text-brandBlue transition-colors text-center">
                 &larr; Cancel Application
               </Link>
             )}
@@ -1306,7 +1306,7 @@ const Apply = () => {
                 title={!isStepComplete ? 'Please fill all required fields before proceeding' : ''}
                 className={`w-full sm:w-auto px-5 sm:px-6 py-2 sm:py-2.5 text-white text-xs sm:text-sm font-bold uppercase tracking-wide rounded-lg transition-colors shadow-sm ${
                   isStepComplete
-                    ? 'bg-uniboRed hover:bg-uniboDarkRed cursor-pointer'
+                    ? 'bg-brandBlue hover:bg-brandDarkBlue cursor-pointer'
                     : 'bg-gray-300 cursor-not-allowed opacity-60'
                 }`}
               >
@@ -1320,7 +1320,7 @@ const Apply = () => {
                 title={!isStepComplete ? 'Please review your application before submitting' : ''}
                 className={`w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3.5 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg transition-all shadow-md hover:shadow-lg ${
                   isStepComplete && !isSubmitting
-                    ? 'bg-uniboRed hover:bg-uniboDarkRed cursor-pointer'
+                    ? 'bg-brandBlue hover:bg-brandDarkBlue cursor-pointer'
                     : 'bg-gray-300 cursor-not-allowed opacity-60'
                 }`}
               >

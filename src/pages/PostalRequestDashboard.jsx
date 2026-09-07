@@ -46,7 +46,7 @@ const PostalRequestDashboard = () => {
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
+            <div className="w-16 h-16 border-4 border-brandBlue/20 border-t-brandBlue rounded-full animate-spin"></div>
             <p className="text-sm font-semibold text-gray-500">Loading Dashboard...</p>
           </div>
         </main>
@@ -60,15 +60,15 @@ const PostalRequestDashboard = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
         <Navbar />
         <main className="flex-grow flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-red-100 p-8 text-center">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-blue-100 p-8 text-center">
+            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 font-serif">Error Loading Dashboard</h3>
             <p className="text-xs sm:text-sm text-gray-500 mt-2">{errorMsg || 'Postal request not found.'}</p>
             <div className="mt-6 flex justify-center gap-4">
               <Link to="/postal-request/track" className="px-4 py-2 bg-gray-950 text-white text-xs font-bold uppercase rounded-lg shadow-md">Track Another</Link>
-              <Link to="/postal-request" className="px-4 py-2 bg-uniboRed text-white text-xs font-bold uppercase rounded-lg shadow-md">Submit New</Link>
+              <Link to="/postal-request" className="px-4 py-2 bg-brandBlue text-white text-xs font-bold uppercase rounded-lg shadow-md">Submit New</Link>
             </div>
           </div>
         </main>
@@ -83,7 +83,7 @@ const PostalRequestDashboard = () => {
 
       <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Skewed decorative banner background */}
-        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-uniboRed transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
+        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-brandBlue transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
 
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 z-10 relative">
           
@@ -110,8 +110,8 @@ const PostalRequestDashboard = () => {
               )}
 
               {request.status === 'EXPIRED' && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-                  <p className="text-xs sm:text-sm text-red-800 font-semibold leading-relaxed">
+                <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                  <p className="text-xs sm:text-sm text-blue-800 font-semibold leading-relaxed">
                     🛑 Expiration Warning: This application expired on {new Date(request.expiredAt).toLocaleString()} because documents were not uploaded before the deadline.
                   </p>
                 </div>
@@ -214,12 +214,12 @@ const PostalRequestDashboard = () => {
             {/* Expired Widget Info */}
             {request.status === 'EXPIRED' && (
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <h3 className="text-md font-bold text-gray-900 font-serif">Workflow Expired</h3>
                 <p className="text-xs text-gray-500 leading-relaxed">The 1-minute window to submit documents has closed. Please submit a new postal request to restart the workflow.</p>
-                <Link to="/postal-request" className="block w-full py-2.5 bg-uniboRed hover:bg-uniboDarkRed text-white text-xs font-bold uppercase rounded-lg shadow-sm">Start New Request</Link>
+                <Link to="/postal-request" className="block w-full py-2.5 bg-brandBlue hover:bg-brandDarkBlue text-white text-xs font-bold uppercase rounded-lg shadow-sm">Start New Request</Link>
               </div>
             )}
 

@@ -142,7 +142,7 @@ const UploadDocuments = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-brandBlue/20 border-t-brandBlue rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -160,7 +160,7 @@ const UploadDocuments = () => {
           <h2 className="text-2xl font-bold text-gray-900">Documents Already Uploaded</h2>
           <p className="text-gray-500 mt-2 max-w-md mx-auto">{errorMsg}</p>
           <div className="pt-4">
-            <Link to="/" className="inline-block bg-uniboRed hover:bg-uniboDarkRed text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow">
+            <Link to="/" className="inline-block bg-brandBlue hover:bg-brandDarkBlue text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow">
               Go to Home
             </Link>
           </div>
@@ -189,11 +189,11 @@ const UploadDocuments = () => {
 
       <main className="flex-grow py-6 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Decorative Skewed Banner */}
-        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-uniboRed transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
+        <div className="absolute top-0 left-0 w-full h-40 sm:h-80 bg-brandBlue transform -skew-y-3 origin-top-left -z-10 shadow-lg"></div>
 
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-10 relative">
           {/* Header */}
-          <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-uniboRed flex justify-between items-center">
+          <div className="bg-gray-900 text-white p-4 sm:p-8 md:p-10 border-b-4 border-brandBlue flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/" className="bg-white rounded-lg p-1.5 h-12 flex items-center shadow-lg border border-gray-800">
                 <img src={logo} alt="Logo" className="h-10 w-auto object-contain" />
@@ -218,8 +218,8 @@ const UploadDocuments = () => {
             ) : isSubmitting ? (
               <div className="py-12 sm:py-20 flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
                 <div className="relative flex items-center justify-center">
-                  <div className="w-20 h-20 border-4 border-uniboRed/20 border-t-uniboRed rounded-full animate-spin"></div>
-                  <div className="absolute w-12 h-12 bg-uniboRed/10 rounded-full"></div>
+                  <div className="w-20 h-20 border-4 border-brandBlue/20 border-t-brandBlue rounded-full animate-spin"></div>
+                  <div className="absolute w-12 h-12 bg-brandBlue/10 rounded-full"></div>
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-serif font-bold text-gray-900">Uploading Documents</h3>
@@ -229,8 +229,8 @@ const UploadDocuments = () => {
             ) : (
               <div className="space-y-8">
                 {errorMsg && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-                    <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
+                  <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-md">
+                    <p className="text-sm text-blue-700 font-medium">{errorMsg}</p>
                   </div>
                 )}
 
@@ -238,7 +238,7 @@ const UploadDocuments = () => {
                 <div className="w-full max-w-md mx-auto bg-[#0d1b2a] text-white p-4 rounded-lg shadow-inner">
                   {timeLeft.expired ? (
                     <div className="text-center">
-                      <div className="text-xl font-bold text-red-400">❌ Deadline Expired</div>
+                      <div className="text-xl font-bold text-blue-400">❌ Deadline Expired</div>
                       <div className="text-sm mt-2">Please contact support for assistance.</div>
                     </div>
                   ) : (
@@ -272,48 +272,48 @@ const UploadDocuments = () => {
                   </div>                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {application.missingDocuments?.includes('profilePicture') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="profilePicture" required accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Profile Picture <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="profilePicture" required accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {profilePicture && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {profilePicture.name}</p>}
                       </div>
                     )}
 
                     {application.missingDocuments?.includes('passportCopy') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="passportCopy" required accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Copy of ID / Passport <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="passportCopy" required accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {passportCopy && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {passportCopy.name}</p>}
                       </div>
                     )}
 
                     {application.missingDocuments?.includes('resume') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="resume" required accept=".pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Resume / CV <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="resume" required accept=".pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {resume && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {resume.name}</p>}
                       </div>
                     )}
 
                     {application.missingDocuments?.includes('transcript1') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 1 <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="transcript1" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 1 <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="transcript1" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {transcript1 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript1.name}</p>}
                       </div>
                     )}
 
                     {application.missingDocuments?.includes('transcript2') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 2 <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="transcript2" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 2 <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="transcript2" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {transcript2 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript2.name}</p>}
                       </div>
                     )}
 
                     {application.missingDocuments?.includes('transcript3') && (
                       <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-all">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 3 <span className="text-uniboRed">*</span></label>
-                        <input type="file" name="transcript3" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-uniboRed file:text-white cursor-pointer" />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Transcript 3 <span className="text-brandBlue">*</span></label>
+                        <input type="file" name="transcript3" required accept="image/*,application/pdf,.doc,.docx" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white cursor-pointer" />
                         {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
                       </div>
                     )}
@@ -326,7 +326,7 @@ const UploadDocuments = () => {
                       className={`px-8 py-3 text-white font-bold uppercase rounded-lg shadow-md transition-all ${
                         isSubmitting || timeLeft.expired
                           ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-uniboRed hover:bg-uniboDarkRed'
+                          : 'bg-brandBlue hover:bg-brandDarkBlue'
                       }`}
                     >
                       Upload Documents

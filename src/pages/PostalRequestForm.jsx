@@ -27,7 +27,7 @@ const DOC_FIELDS = [
 // ─── Reusable file drop zone ──────────────────────────────────────────────────
 const FileInput = ({ field, file, onChange }) => (
   <div className={`rounded-xl border-2 transition-all p-4
-    ${file ? 'border-green-400 bg-green-50' : 'border-dashed border-gray-200 bg-gray-50 hover:border-red-300 hover:bg-red-50/30'}`}>
+    ${file ? 'border-green-400 bg-green-50' : 'border-dashed border-gray-200 bg-gray-50 hover:border-red-300 hover:bg-blue-50/30'}`}>
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <p className="text-sm font-semibold text-gray-800">{field.label}</p>
@@ -37,7 +37,7 @@ const FileInput = ({ field, file, onChange }) => (
         }
       </div>
       <label className="shrink-0 cursor-pointer px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide
-        bg-white border border-gray-200 text-gray-600 hover:border-red-400 hover:text-red-600 transition-all shadow-sm">
+        bg-white border border-gray-200 text-gray-600 hover:border-blue-400 hover:text-red-600 transition-all shadow-sm">
         {file ? 'Change' : 'Choose File'}
         <input
           type="file"
@@ -53,7 +53,7 @@ const FileInput = ({ field, file, onChange }) => (
 // ─── Form section heading ─────────────────────────────────────────────────────
 const SectionHeading = ({ icon, title, subtitle }) => (
   <div className="flex items-center gap-3 pb-3 border-b border-gray-100 mb-5">
-    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600 shrink-0 text-sm">
+    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-red-600 shrink-0 text-sm">
       {icon}
     </div>
     <div>
@@ -184,14 +184,14 @@ const PostalRequestForm = () => {
             {/* Progress indicator */}
             <div className="flex items-center justify-between px-6 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500">
               <span>Documents uploaded: <strong className={uploadedCount === 3 ? 'text-green-600' : 'text-amber-600'}>{uploadedCount}/3</strong></span>
-              <span className="text-gray-400">All fields marked <span className="text-red-500">*</span> are required</span>
+              <span className="text-gray-400">All fields marked <span className="text-blue-500">*</span> are required</span>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-8">
 
               {errorMsg && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-                  <p className="text-xs text-red-700 font-semibold">{errorMsg}</p>
+                <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                  <p className="text-xs text-blue-700 font-semibold">{errorMsg}</p>
                 </div>
               )}
 
@@ -201,7 +201,7 @@ const PostalRequestForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">
-                      Student Email Address <span className="text-red-500">*</span>
+                      Student Email Address <span className="text-blue-500">*</span>
                     </label>
                     <input
                       type="email"
@@ -219,7 +219,7 @@ const PostalRequestForm = () => {
 
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">
-                      Full Name <span className="text-red-500">*</span>
+                      Full Name <span className="text-blue-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -355,7 +355,7 @@ const PostalRequestForm = () => {
                 className={`w-full py-4 rounded-xl text-white font-bold uppercase tracking-widest text-sm shadow-lg transition-all
                   ${isSubmitting
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-red-700 hover:bg-red-800 hover:shadow-red-200 hover:shadow-xl transform hover:-translate-y-0.5'
+                    : 'bg-blue-700 hover:bg-blue-800 hover:shadow-blue-200 hover:shadow-xl transform hover:-translate-y-0.5'
                   }`}
               >
                 {isSubmitting

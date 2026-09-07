@@ -23,7 +23,7 @@ const Navbar = () => {
             {isApplyPage ? (
               <Link 
                 to="/" 
-                className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 border border-gray-300 text-xs sm:text-sm font-bold uppercase rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uniboRed transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-2 border border-gray-300 text-xs sm:text-sm font-bold uppercase rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brandBlue transition-all duration-300 transform hover:scale-105"
               >
                 <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span className="hidden sm:inline">Back to Home</span>
@@ -32,7 +32,7 @@ const Navbar = () => {
             ) : (
               <Link 
                 to="/admin" 
-                className="inline-flex items-center px-3 sm:px-6 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-bold uppercase rounded-full shadow-sm text-white bg-uniboRed hover:bg-uniboDarkRed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uniboRed transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center px-3 sm:px-6 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-bold uppercase rounded-full shadow-sm text-white bg-brandBlue hover:bg-brandDarkBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brandBlue transition-all duration-300 transform hover:scale-105"
               >
                 Login
               </Link>

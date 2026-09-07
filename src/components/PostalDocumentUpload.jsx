@@ -44,10 +44,10 @@ const PostalDocumentUpload = ({
   // ── Guard states ─────────────────────────────────────────────────────────────
   if (status === 'EXPIRED') {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-center shadow-sm">
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center shadow-sm">
         <div className="text-2xl mb-2">🛑</div>
-        <p className="text-sm font-bold text-red-700">Upload Disabled</p>
-        <p className="text-xs text-red-500 mt-1 leading-relaxed">
+        <p className="text-sm font-bold text-blue-700">Upload Disabled</p>
+        <p className="text-xs text-blue-500 mt-1 leading-relaxed">
           This request has expired. No further document uploads are permitted.
         </p>
       </div>
@@ -136,8 +136,8 @@ const PostalDocumentUpload = ({
       <form onSubmit={handleSubmit} className="p-5 space-y-4">
         {/* Feedback messages */}
         {errorMsg && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg">
-            <p className="text-xs text-red-700 font-semibold">{errorMsg}</p>
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg">
+            <p className="text-xs text-blue-700 font-semibold">{errorMsg}</p>
           </div>
         )}
         {successMsg && (

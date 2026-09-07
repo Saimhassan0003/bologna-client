@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-uniboRed: #F16E24;
-  --color-uniboDarkRed: #881D1C;
+  --color-brandBlue: #0056b3;
+  --color-brandDarkBlue: #003d82;
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Georgia', serif;
 }

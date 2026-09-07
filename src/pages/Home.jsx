@@ -29,13 +29,13 @@ const Home = () => {
 
           <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-6 sm:mt-12">
             <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-4 sm:mb-8 font-serif leading-tight text-white drop-shadow-lg">
-              Developing people with <span className="text-uniboRed drop-shadow-md">skills</span> and <span className="text-uniboRed drop-shadow-md">knowledge</span> that equip them for current and future employment
+              Developing people with <span className="text-brandBlue drop-shadow-md">skills</span> and <span className="text-brandBlue drop-shadow-md">knowledge</span> that equip them for current and future employment
             </h1>
             
             <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row gap-4 justify-center px-4">
               <button 
                 onClick={handleApplyClick}
-                className="group relative inline-flex items-center justify-center px-6 sm:px-10 py-2.5 sm:py-4 text-sm sm:text-base font-bold text-white uppercase tracking-wider bg-uniboRed overflow-hidden rounded-md shadow-2xl transition-all duration-300 hover:bg-uniboDarkRed hover:shadow-[0_0_20px_rgba(165,0,33,0.5)] transform hover:-translate-y-1"
+                className="group relative inline-flex items-center justify-center px-6 sm:px-10 py-2.5 sm:py-4 text-sm sm:text-base font-bold text-white uppercase tracking-wider bg-brandBlue overflow-hidden rounded-md shadow-2xl transition-all duration-300 hover:bg-brandDarkBlue hover:shadow-[0_0_20px_rgba(165,0,33,0.5)] transform hover:-translate-y-1"
               >
                 <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
                 <span className="relative flex items-center gap-2">
@@ -52,7 +52,7 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10 sm:mb-16">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 font-serif">Why Choose Us?</h2>
-              <div className="w-24 h-1 bg-uniboRed mx-auto mt-4"></div>
+              <div className="w-24 h-1 bg-brandBlue mx-auto mt-4"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-10">
               <div className="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">

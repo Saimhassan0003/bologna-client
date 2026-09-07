@@ -20,7 +20,7 @@ const DOC_LABELS = {
 /** Spinner while loading */
 const LoadingState = () => (
   <div className="flex flex-col items-center gap-4 py-20">
-    <div className="w-14 h-14 border-4 border-red-100 border-t-red-700 rounded-full animate-spin" />
+    <div className="w-14 h-14 border-4 border-blue-100 border-t-red-700 rounded-full animate-spin" />
     <p className="text-sm text-gray-400 font-medium">Loading your application...</p>
   </div>
 );
@@ -37,7 +37,7 @@ const NoApplication = () => (
     </p>
     <Link
       to="/postal-request"
-      className="inline-block px-6 py-3 bg-red-700 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all"
+      className="inline-block px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all"
     >
       📬 Submit Postal Request
     </Link>
@@ -57,7 +57,7 @@ const EmailLookupForm = ({ onSearch, isSearching }) => {
   const [email, setEmail] = useState('');
   return (
     <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
-      <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">📋</div>
+      <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">📋</div>
       <h2 className="text-xl font-bold text-gray-900 font-serif mb-1">Check Application Status</h2>
       <p className="text-xs text-gray-500 mb-6">Enter your student email to view your postal request status.</p>
       <form onSubmit={(e) => { e.preventDefault(); onSearch(email.trim()); }} className="space-y-3">
@@ -72,13 +72,13 @@ const EmailLookupForm = ({ onSearch, isSearching }) => {
         <button
           type="submit"
           disabled={isSearching || !email}
-          className="w-full py-3 bg-red-700 hover:bg-red-800 disabled:bg-gray-300 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
+          className="w-full py-3 bg-blue-700 hover:bg-blue-800 disabled:bg-gray-300 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
         >
           {isSearching ? 'Searching...' : 'Find My Application'}
         </button>
       </form>
       <div className="mt-4 pt-4 border-t border-gray-100">
-        <Link to="/postal-request" className="text-xs text-red-600 hover:text-red-800 font-semibold">
+        <Link to="/postal-request" className="text-xs text-red-600 hover:text-blue-800 font-semibold">
           📬 Submit a new request →
         </Link>
       </div>
@@ -230,8 +230,8 @@ const SubmittedState = ({ request }) => (
 // ─── EXPIRED State ────────────────────────────────────────────────────────────
 const ExpiredState = ({ request }) => (
   <div className="max-w-2xl mx-auto space-y-4">
-    <div className="bg-white rounded-2xl shadow-lg border border-red-100 overflow-hidden">
-      <div className="bg-red-700 px-6 py-4 flex items-center justify-between">
+    <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+      <div className="bg-blue-700 px-6 py-4 flex items-center justify-between">
         <div>
           <p className="text-[10px] font-extrabold text-red-200 uppercase tracking-widest">Application</p>
           <h2 className="text-xl font-extrabold text-white font-serif">{request.applicationNumber}</h2>
@@ -240,8 +240,8 @@ const ExpiredState = ({ request }) => (
       </div>
 
       <div className="p-6 space-y-5">
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-xl">
-          <p className="text-sm font-semibold text-red-800 leading-relaxed">
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl">
+          <p className="text-sm font-semibold text-blue-800 leading-relaxed">
             🛑 <strong>Deadline expired.</strong> This application has expired because the required documents were not uploaded within
             the 5-minute window. No further uploads are permitted.
           </p>
@@ -272,7 +272,7 @@ const ExpiredState = ({ request }) => (
                     <span className="font-medium text-gray-700">{label}</span>
                     {uploaded
                       ? <span className="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100">✅ Uploaded</span>
-                      : <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">❌ Not Uploaded</span>
+                      : <span className="text-xs font-bold text-red-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">❌ Not Uploaded</span>
                     }
                   </div>
                 );
@@ -380,7 +380,7 @@ const PostalRequestStatus = () => {
               )}
               <Link
                 to="/postal-request"
-                className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase rounded-full transition-all"
+                className="px-4 py-1.5 bg-red-600 hover:bg-blue-700 text-white text-xs font-bold uppercase rounded-full transition-all"
               >
                 New Request
               </Link>
@@ -416,8 +416,8 @@ const PostalRequestStatus = () => {
 
           {/* Error banner */}
           {errorMsg && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
-              <p className="text-xs text-red-700 font-semibold">{errorMsg}</p>
+            <div className="mb-6 bg-blue-50 border-l-4 border-red-500 p-4 rounded-r-xl">
+              <p className="text-xs text-blue-700 font-semibold">{errorMsg}</p>
             </div>
           )}
 

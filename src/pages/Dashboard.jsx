@@ -724,7 +724,7 @@ const Dashboard = () => {
       case 'Pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Reviewed': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Accepted': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Rejected': return 'bg-blue-100 text-blue-800 border-blue-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -750,11 +750,11 @@ const Dashboard = () => {
           <div className={`p-4 rounded-xl border shadow-xl flex items-center justify-between gap-4 backdrop-blur-md ${
             notification.type === 'success' 
               ? 'bg-green-50/95 border-green-200 text-green-800' 
-              : 'bg-red-50/95 border-red-200 text-red-800'
+              : 'bg-blue-50/95 border-blue-200 text-blue-800'
           }`}>
             <div className="flex items-center gap-3">
               <span className={`p-1.5 rounded-lg ${
-                notification.type === 'success' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                notification.type === 'success' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-red-600'
               }`}>
                 {notification.type === 'success' ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
@@ -814,7 +814,7 @@ const Dashboard = () => {
             <button
               onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'overview'
-                ? 'bg-uniboRed text-white shadow-md'
+                ? 'bg-brandBlue text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
@@ -825,14 +825,14 @@ const Dashboard = () => {
             <button
               onClick={() => { setActiveTab('applications'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'applications'
-                ? 'bg-uniboRed text-white shadow-md'
+                ? 'bg-brandBlue text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
               Applications List
               {pendingApps > 0 && (
-                <span className="ml-auto bg-uniboRed text-white text-[10px] font-bold px-2 py-0.5 rounded-full ring-2 ring-gray-900 animate-pulse">
+                <span className="ml-auto bg-brandBlue text-white text-[10px] font-bold px-2 py-0.5 rounded-full ring-2 ring-gray-900 animate-pulse">
                   {pendingApps}
                 </span>
               )}
@@ -841,7 +841,7 @@ const Dashboard = () => {
             <button
               onClick={() => { setActiveTab('departments'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'departments'
-                ? 'bg-uniboRed text-white shadow-md'
+                ? 'bg-brandBlue text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
@@ -852,7 +852,7 @@ const Dashboard = () => {
             <button
               onClick={() => { setActiveTab('programmes'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'programmes'
-                ? 'bg-uniboRed text-white shadow-md'
+                ? 'bg-brandBlue text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
@@ -863,7 +863,7 @@ const Dashboard = () => {
             <button
               onClick={() => { setActiveTab('centres'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'centres'
-                ? 'bg-uniboRed text-white shadow-md'
+                ? 'bg-brandBlue text-white shadow-md'
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
             >
@@ -903,7 +903,7 @@ const Dashboard = () => {
           </div>
           <button
             onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
-            className="w-full py-2 bg-gray-800 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-md transition-colors shadow-sm"
+            className="w-full py-2 bg-gray-800 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-md transition-colors shadow-sm"
           >
             Sign Out
           </button>
@@ -919,7 +919,7 @@ const Dashboard = () => {
             {/* Hamburger Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1.5 -ml-1 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-uniboRed transition-colors mr-1"
+              className="p-1.5 -ml-1 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-brandBlue transition-colors mr-1"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -950,7 +950,7 @@ const Dashboard = () => {
               </svg>
               <span className="hidden sm:inline">Action Log</span>
               {logs.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-uniboRed text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ring-2 ring-white animate-pulse">
+                <span className="absolute -top-1.5 -right-1.5 bg-brandBlue text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ring-2 ring-white animate-pulse">
                   {logs.length}
                 </span>
               )}
@@ -966,7 +966,7 @@ const Dashboard = () => {
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-2.5 py-1.5 bg-uniboRed text-white text-xs font-bold rounded-md hover:bg-uniboDarkRed"
+                className="px-2.5 py-1.5 bg-brandBlue text-white text-xs font-bold rounded-md hover:bg-brandDarkBlue"
               >
                 Sign Out
               </button>
@@ -1043,7 +1043,7 @@ const Dashboard = () => {
                       </div>
                       <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-uniboRed h-full transition-all duration-500"
+                          className="bg-brandBlue h-full transition-all duration-500"
                           style={{ width: `${totalApps > 0 ? ((totalApps - pendingApps) / totalApps) * 100 : 0}%` }}
                         ></div>
                       </div>
@@ -1071,7 +1071,7 @@ const Dashboard = () => {
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
                     <span className="font-semibold text-gray-600">Approved Centre Applicants</span>
-                    <span className="font-extrabold text-uniboRed">{applications.filter(app => app.registrationViaCentre === 'Yes').length}</span>
+                    <span className="font-extrabold text-brandBlue">{applications.filter(app => app.registrationViaCentre === 'Yes').length}</span>
                   </div>
                 </div>
 
@@ -1121,12 +1121,12 @@ const Dashboard = () => {
                   onClick={() => setSubmissionFilter('direct')}
                   className={`p-5 rounded-xl border text-left transition-all duration-350 cursor-pointer ${
                     submissionFilter === 'direct'
-                      ? 'bg-uniboRed text-white shadow-lg border-uniboRed scale-[1.02]'
+                      ? 'bg-brandBlue text-white shadow-lg border-brandBlue scale-[1.02]'
                       : 'bg-white text-gray-800 border-gray-200 hover:shadow-md hover:border-gray-300'
                   }`}
                 >
                   <div className="flex justify-between items-center">
-                    <span className={`p-2 rounded-lg ${submissionFilter === 'direct' ? 'bg-red-800 text-white' : 'bg-red-50 text-uniboRed'}`}>
+                    <span className={`p-2 rounded-lg ${submissionFilter === 'direct' ? 'bg-blue-800 text-white' : 'bg-blue-50 text-brandBlue'}`}>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
@@ -1179,7 +1179,7 @@ const Dashboard = () => {
                         setSelectedDeptFilter(e.target.value);
                         setSelectedProgFilter('all');
                       }}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700 cursor-pointer"
                     >
                       <option value="all">All Programmes</option>
                       {departments.map((dept, index) => (
@@ -1194,7 +1194,7 @@ const Dashboard = () => {
                     <select
                       value={selectedProgFilter}
                       onChange={(e) => setSelectedProgFilter(e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700 cursor-pointer"
                     >
                       <option value="all">All Courses</option>
                       {programmes
@@ -1217,7 +1217,7 @@ const Dashboard = () => {
                     <select
                       value={selectedStatusFilter}
                       onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700 cursor-pointer"
                     >
                       <option value="all">All Statuses</option>
                       <option value="Submitted">Submitted (All Docs Uploaded)</option>
@@ -1235,7 +1235,7 @@ const Dashboard = () => {
                       <select
                         value={selectedCentreNameFilter}
                         onChange={(e) => setSelectedCentreNameFilter(e.target.value)}
-                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700 cursor-pointer"
                       >
                         <option value="all">All Centres</option>
                         {centres.map((centre) => (
@@ -1304,7 +1304,7 @@ const Dashboard = () => {
                         setSelectedDeptFilter('all');
                         setSelectedProgFilter('all');
                       }}
-                      className="px-4 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors inline-flex items-center gap-1 shadow-sm cursor-pointer"
+                      className="px-4 py-2 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-lg transition-colors inline-flex items-center gap-1 shadow-sm cursor-pointer"
                     >
                       Reset Filters
                     </button>
@@ -1373,7 +1373,7 @@ const Dashboard = () => {
                                     e.stopPropagation();
                                     setOpenDropdownId(openDropdownId === app._id ? null : app._id);
                                   }}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-lg shadow-sm cursor-pointer border border-gray-800"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-lg shadow-sm cursor-pointer border border-gray-800"
                                 >
                                   Actions
                                   <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
@@ -1415,9 +1415,9 @@ const Dashboard = () => {
                                           handleStatusChange(app._id, 'Rejected');
                                           setOpenDropdownId(null);
                                         }}
-                                        className="w-full px-4 py-2.5 text-xs font-bold text-red-700 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
+                                        className="w-full px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50 flex items-center gap-2 transition-colors cursor-pointer"
                                       >
-                                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                                        <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
                                         Reject Application
                                       </button>
                                       
@@ -1467,7 +1467,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   onClick={() => setShowAddDeptModal(true)}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Add Programme
@@ -1486,7 +1486,7 @@ const Dashboard = () => {
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden max-w-4xl">
                 <div className="p-6 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-red-50 text-uniboRed rounded-xl">
+                    <div className="p-2.5 bg-blue-50 text-brandBlue rounded-xl">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     </div>
                     <div>
@@ -1494,7 +1494,7 @@ const Dashboard = () => {
                       <p className="text-xs text-gray-500">Configure academic certificates and their linked Courses</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 bg-red-100 text-uniboRed text-xs font-bold rounded-full">{departments.length} Options</span>
+                  <span className="px-2.5 py-1 bg-blue-100 text-brandBlue text-xs font-bold rounded-full">{departments.length} Options</span>
                 </div>
 
                 {/* Search Bar for Programmes */}
@@ -1505,7 +1505,7 @@ const Dashboard = () => {
                       placeholder="Search Programmes..."
                       value={searchDeptQuery}
                       onChange={(e) => setSearchDeptQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700"
+                      className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -1542,7 +1542,7 @@ const Dashboard = () => {
                                   value={editingDeptVal}
                                   onChange={(e) => setEditingDeptVal(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveDeptEdit(idx)}
-                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                 />
                               ) : (
                                 <span className="text-sm font-bold text-gray-900">{dept}</span>
@@ -1556,7 +1556,7 @@ const Dashboard = () => {
                                       {p}
                                       <button
                                         onClick={() => removeSpecificProgramme(dept, p)}
-                                        className="text-blue-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-colors p-0.5"
+                                        className="text-blue-400 hover:text-blue-500 rounded-full hover:bg-blue-50 transition-colors p-0.5"
                                         title={`Delete ${p}`}
                                       >
                                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -1597,7 +1597,7 @@ const Dashboard = () => {
                                   </button>
                                   <button
                                     onClick={() => removeDepartment(idx)}
-                                    className="text-gray-400 hover:text-uniboRed transition-colors p-1 hover:bg-red-50 rounded-md"
+                                    className="text-gray-400 hover:text-brandBlue transition-colors p-1 hover:bg-blue-50 rounded-md"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                   </button>
@@ -1629,7 +1629,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   onClick={() => setShowAddProgModal(true)}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Add Course
@@ -1668,7 +1668,7 @@ const Dashboard = () => {
                       <select
                         value={filterDeptForProgTable}
                         onChange={(e) => setFilterDeptForProgTable(e.target.value)}
-                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700 cursor-pointer"
+                        className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700 cursor-pointer"
                       >
                         <option value="all">All Programmes</option>
                         {departments.map((dept, index) => (
@@ -1686,7 +1686,7 @@ const Dashboard = () => {
                           placeholder="Search Courses..."
                           value={searchProgQuery}
                           onChange={(e) => setSearchProgQuery(e.target.value)}
-                          className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-uniboRed font-semibold text-gray-700"
+                          className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandBlue font-semibold text-gray-700"
                         />
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -1702,7 +1702,7 @@ const Dashboard = () => {
                         setFilterDeptForProgTable('all');
                         setSearchProgQuery('');
                       }}
-                      className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-uniboRed bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg whitespace-nowrap cursor-pointer mt-4"
+                      className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-brandBlue bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg whitespace-nowrap cursor-pointer mt-4"
                     >
                       Clear
                     </button>
@@ -1757,7 +1757,7 @@ const Dashboard = () => {
                                   value={editingProgVal}
                                   onChange={(e) => setEditingProgVal(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
-                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                 />
                               ) : (
                                 <span className="text-sm font-bold text-gray-900">{itemVal}</span>
@@ -1770,7 +1770,7 @@ const Dashboard = () => {
                                   value={editingProgStartDate}
                                   onChange={(e) => setEditingProgStartDate(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
-                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                   placeholder="e.g. 1 July 2026"
                                 />
                               ) : (
@@ -1784,7 +1784,7 @@ const Dashboard = () => {
                                   value={editingProgEndDate}
                                   onChange={(e) => setEditingProgEndDate(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
-                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                   placeholder="e.g. 1 July 2027"
                                 />
                               ) : (
@@ -1798,7 +1798,7 @@ const Dashboard = () => {
                                   value={editingProgCredits}
                                   onChange={(e) => setEditingProgCredits(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
-                                  className="w-full max-w-[100px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-[100px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                   placeholder="Credits"
                                 />
                               ) : (
@@ -1812,7 +1812,7 @@ const Dashboard = () => {
                                   value={editingProgPrice}
                                   onChange={(e) => setEditingProgPrice(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveProgEdit(idx)}
-                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-[120px] px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                   placeholder="Price"
                                 />
                               ) : (
@@ -1852,7 +1852,7 @@ const Dashboard = () => {
                                   </button>
                                   <button
                                     onClick={() => removeProgramme(idx)}
-                                    className="text-gray-400 hover:text-uniboRed transition-colors p-1 hover:bg-red-50 rounded-md"
+                                    className="text-gray-400 hover:text-brandBlue transition-colors p-1 hover:bg-blue-50 rounded-md"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                   </button>
@@ -1884,7 +1884,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   onClick={() => setShowAddIntkModal(true)}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Add Intake
@@ -1948,7 +1948,7 @@ const Dashboard = () => {
                                   value={editingIntkVal}
                                   onChange={(e) => setEditingIntkVal(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && saveIntkEdit(idx)}
-                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                  className="w-full max-w-xs px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                 />
                               ) : (
                                 <span className="text-sm font-bold text-gray-900">{itemVal}</span>
@@ -1983,7 +1983,7 @@ const Dashboard = () => {
                                   </button>
                                   <button
                                     onClick={() => removeIntake(idx)}
-                                    className="text-gray-400 hover:text-uniboRed transition-colors p-1 hover:bg-red-50 rounded-md"
+                                    className="text-gray-400 hover:text-brandBlue transition-colors p-1 hover:bg-blue-50 rounded-md"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                   </button>
@@ -2014,7 +2014,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   onClick={() => { setCentreError(''); setShowAddCentreModal(true); }}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Add Centre
@@ -2022,8 +2022,8 @@ const Dashboard = () => {
               </div>
 
               {centreError && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-                  <p className="text-sm text-red-700 font-semibold">{centreError}</p>
+                <div className="bg-blue-50 border-l-4 border-red-500 p-4 rounded-lg">
+                  <p className="text-sm text-blue-700 font-semibold">{centreError}</p>
                 </div>
               )}
 
@@ -2036,7 +2036,7 @@ const Dashboard = () => {
                   <p className="text-sm text-gray-500 mt-1 max-w-xs">Add your first approved centre to make it available for applicants during registration.</p>
                   <button
                     onClick={() => { setCentreError(''); setShowAddCentreModal(true); }}
-                    className="mt-5 px-5 py-2.5 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md"
+                    className="mt-5 px-5 py-2.5 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-xl transition-all shadow-md"
                   >
                     + Add First Centre
                   </button>
@@ -2088,21 +2088,21 @@ const Dashboard = () => {
                                       type="text"
                                       value={editingCentreName}
                                       onChange={(e) => setEditingCentreName(e.target.value)}
-                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                       placeholder="Centre Name"
                                     />
                                     <input
                                       type="email"
                                       value={editingCentreEmail}
                                       onChange={(e) => setEditingCentreEmail(e.target.value)}
-                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                       placeholder="email@example.com"
                                     />
                                     <input
                                       type="text"
                                       value={editingCentrePhone}
                                       onChange={(e) => setEditingCentrePhone(e.target.value)}
-                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                                      className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                                       placeholder="Contact Number"
                                     />
                                   </div>
@@ -2112,11 +2112,11 @@ const Dashboard = () => {
                                     className="flex items-center gap-3 cursor-pointer group"
                                     title={`Click to view candidate applications from ${centre.name}`}
                                   >
-                                    <div className="shrink-0 w-10 h-10 rounded-xl bg-gray-900 border-2 border-uniboRed flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-250">
-                                      <span className="text-uniboRed font-extrabold text-xs tracking-wider">{initials}</span>
+                                    <div className="shrink-0 w-10 h-10 rounded-xl bg-gray-900 border-2 border-brandBlue flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-250">
+                                      <span className="text-brandBlue font-extrabold text-xs tracking-wider">{initials}</span>
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="text-sm font-bold text-gray-900 leading-tight capitalize truncate font-semibold group-hover:text-uniboRed group-hover:underline transition-colors">{centre.name}</p>
+                                      <p className="text-sm font-bold text-gray-900 leading-tight capitalize truncate font-semibold group-hover:text-brandBlue group-hover:underline transition-colors">{centre.name}</p>
                                       <p className="text-xs text-gray-500 mt-0.5 truncate">{centre.email}</p>
                                       {centre.phone && <p className="text-[10px] text-gray-400 font-medium truncate">{centre.phone}</p>}
                                     </div>
@@ -2146,8 +2146,8 @@ const Dashboard = () => {
 
                               {/* 4. Status */}
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 border border-orange-200 text-uniboRed text-[10px] font-bold rounded-full shadow-sm">
-                                  <span className="w-1 h-1 rounded-full bg-uniboRed animate-pulse"></span>
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-orange-50 border border-orange-200 text-brandBlue text-[10px] font-bold rounded-full shadow-sm">
+                                  <span className="w-1 h-1 rounded-full bg-brandBlue animate-pulse"></span>
                                   Active
                                 </span>
                               </td>
@@ -2186,7 +2186,7 @@ const Dashboard = () => {
                                     </button>
                                     <button
                                       onClick={() => removeCentre(centre._id)}
-                                      className="text-gray-400 hover:text-uniboRed transition-colors p-1.5 hover:bg-red-50 rounded-md cursor-pointer"
+                                      className="text-gray-400 hover:text-brandBlue transition-colors p-1.5 hover:bg-blue-50 rounded-md cursor-pointer"
                                     >
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -2291,7 +2291,7 @@ const Dashboard = () => {
                                   <select
                                     value={app.status}
                                     onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                                    className="pl-2 pr-7 py-1 text-xs border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-semibold"
+                                    className="pl-2 pr-7 py-1 text-xs border border-gray-300 focus:outline-none focus:ring-brandBlue focus:border-brandBlue rounded-md bg-white font-semibold"
                                   >
                                     <option value="Submitted">Submitted</option>
                                     <option value="PendingDocuments">Pending Documents</option>
@@ -2302,7 +2302,7 @@ const Dashboard = () => {
 
                                   <button
                                     onClick={() => setSelectedApp(app)}
-                                    className="px-3 py-1 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-md shadow-sm cursor-pointer"
+                                    className="px-3 py-1 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-md shadow-sm cursor-pointer"
                                   >
                                     Review
                                   </button>
@@ -2327,7 +2327,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col my-8 max-h-[90vh]">
 
             {/* Modal Header */}
-            <div className="bg-gray-900 text-white p-6 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+            <div className="bg-gray-900 text-white p-6 border-b-4 border-brandBlue flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-xl font-bold font-serif">Registry Candidate Verification</h3>
                 <p className="text-xs text-gray-400">Application Reference ID: {selectedApp._id}</p>
@@ -2483,9 +2483,9 @@ const Dashboard = () => {
 
               {/* Document Upload Link for Pending Applications */}
               {selectedApp.uploadLink && selectedApp.status === 'PendingDocuments' && (
-                <div className="border border-red-100 bg-red-50 p-5 rounded-xl mb-6">
+                <div className="border border-blue-100 bg-blue-50 p-5 rounded-xl mb-6">
                   <h5 className="font-serif font-bold text-red-900 mb-2 text-sm">Document Upload Link</h5>
-                  <p className="text-xs text-red-700 mb-4">
+                  <p className="text-xs text-blue-700 mb-4">
                     You can manually share this unique upload link with the candidate:
                   </p>
                   <div className="flex items-center gap-3">
@@ -2493,7 +2493,7 @@ const Dashboard = () => {
                       href={selectedApp.uploadLink}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 truncate text-xs font-mono text-blue-700 hover:underline bg-white px-3 py-2 border border-red-200 rounded-lg"
+                      className="flex-1 truncate text-xs font-mono text-blue-700 hover:underline bg-white px-3 py-2 border border-blue-200 rounded-lg"
                     >
                       {selectedApp.uploadLink}
                     </a>
@@ -2503,7 +2503,7 @@ const Dashboard = () => {
                         setNotification({ message: 'Upload link copied to clipboard!', type: 'success' });
                         setTimeout(() => setNotification(null), 4000);
                       }}
-                      className="px-4 py-2 bg-uniboRed hover:bg-red-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0 flex items-center gap-2"
+                      className="px-4 py-2 bg-brandBlue hover:bg-blue-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm shrink-0 flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                       Copy Link
@@ -2521,7 +2521,7 @@ const Dashboard = () => {
                     href={getFileUrl(selectedApp.profilePicture)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Profile Picture
@@ -2531,7 +2531,7 @@ const Dashboard = () => {
                     href={getFileUrl(selectedApp.passportCopy)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 00-2 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5z"></path></svg>
                     Passport/ID Copy
@@ -2541,7 +2541,7 @@ const Dashboard = () => {
                     href={getFileUrl(selectedApp.resume)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Resume / CV
@@ -2551,10 +2551,10 @@ const Dashboard = () => {
                     href={getFileUrl(selectedApp.transcript1)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                    className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Transcript 1 <span className="text-red-500 font-extrabold">*</span>
+                    Transcript 1 <span className="text-blue-500 font-extrabold">*</span>
                   </a>
 
                   {selectedApp.transcript2 ? (
@@ -2562,7 +2562,7 @@ const Dashboard = () => {
                       href={getFileUrl(selectedApp.transcript2)}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                      className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                       Transcript 2
@@ -2578,7 +2578,7 @@ const Dashboard = () => {
                       href={getFileUrl(selectedApp.transcript3)}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-uniboRed font-bold shadow-sm"
+                      className="flex items-center gap-2.5 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs transition-all text-brandBlue font-bold shadow-sm"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                       Transcript 3
@@ -2601,7 +2601,7 @@ const Dashboard = () => {
                 <select
                   value={selectedApp.status}
                   onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
-                  className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 focus:outline-none focus:ring-uniboRed focus:border-uniboRed rounded-md bg-white font-medium"
+                  className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 focus:outline-none focus:ring-brandBlue focus:border-brandBlue rounded-md bg-white font-medium"
                 >
                   <option value="Submitted">Submitted</option>
                   <option value="PendingDocuments">Pending Documents</option>
@@ -2627,7 +2627,7 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-fade-in-up">
             {/* Modal Header */}
-            <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+            <div className="bg-gray-900 text-white p-5 border-b-4 border-brandBlue flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-lg font-bold font-serif">Add New Programme</h3>
                 <p className="text-xs text-gray-400">Configure a new academic programme level</p>
@@ -2649,7 +2649,7 @@ const Dashboard = () => {
                   placeholder="e.g. Level 5 Higher Diploma"
                   value={newDepartment}
                   onChange={(e) => setNewDepartment(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
             </div>
@@ -2664,7 +2664,7 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={addDepartment}
-                className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
+                className="px-5 py-2 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
                 Create Programme
               </button>
@@ -2678,7 +2678,7 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-fade-in-up">
             {/* Modal Header */}
-            <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+            <div className="bg-gray-900 text-white p-5 border-b-4 border-brandBlue flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-lg font-bold font-serif">Add New Course</h3>
                 <p className="text-xs text-gray-400">Configure a new course linked to a programme</p>
@@ -2698,7 +2698,7 @@ const Dashboard = () => {
                 <select
                   value={selectedDeptForProg}
                   onChange={(e) => setSelectedDeptForProg(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 >
                   <option value="">-- Choose Programme --</option>
                   {departments.map((d, index) => (
@@ -2714,7 +2714,7 @@ const Dashboard = () => {
                   placeholder="e.g. Master of Business Administration"
                   value={newProgramme}
                   onChange={(e) => setNewProgramme(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
 
@@ -2729,7 +2729,7 @@ const Dashboard = () => {
                       const hours = newCreditHours.split(' ').slice(1).join(' ');
                       setNewCreditHours(`${e.target.value} ${hours}`.trim());
                     }}
-                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                   />
                 </div>
                 <div>
@@ -2742,7 +2742,7 @@ const Dashboard = () => {
                       const credits = newCreditHours.split(' ')[0] || '';
                       setNewCreditHours(`${credits} ${e.target.value}`.trim());
                     }}
-                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                   />
                 </div>
                 <div>
@@ -2752,7 +2752,7 @@ const Dashboard = () => {
                     placeholder="e.g. 3,000 EUR"
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                   />
                 </div>
               </div>
@@ -2765,7 +2765,7 @@ const Dashboard = () => {
                     placeholder="e.g. 1 July 2026"
                     value={newCourseStartDate}
                     onChange={(e) => setNewCourseStartDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                   />
                 </div>
                 <div>
@@ -2775,7 +2775,7 @@ const Dashboard = () => {
                     placeholder="e.g. 1 July 2027"
                     value={newCourseEndDate}
                     onChange={(e) => setNewCourseEndDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                   />
                 </div>
               </div>
@@ -2791,7 +2791,7 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={addProgramme}
-                className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
+                className="px-5 py-2 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
                 Create Course
               </button>
@@ -2805,7 +2805,7 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-fade-in-up">
             {/* Modal Header */}
-            <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+            <div className="bg-gray-900 text-white p-5 border-b-4 border-brandBlue flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-lg font-bold font-serif">Add Intake Mapping</h3>
                 <p className="text-xs text-gray-400">Map custom intakes to programmes and courses</p>
@@ -2828,7 +2828,7 @@ const Dashboard = () => {
                     setSelectedDeptForIntake(e.target.value);
                     setSelectedProgForIntake('');
                   }}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 >
                   <option value="">-- Choose Programme --</option>
                   {departments.map((d, index) => (
@@ -2842,7 +2842,7 @@ const Dashboard = () => {
                 <select
                   value={selectedProgForIntake}
                   onChange={(e) => setSelectedProgForIntake(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 >
                   <option value="">-- Choose Programme --</option>
                   {programmes
@@ -2867,7 +2867,7 @@ const Dashboard = () => {
                   placeholder="e.g. January 2026 - July 2026"
                   value={newIntake}
                   onChange={(e) => setNewIntake(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
             </div>
@@ -2882,7 +2882,7 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={addIntake}
-                className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
+                className="px-5 py-2 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
                 Create Intake
               </button>
@@ -2896,7 +2896,7 @@ const Dashboard = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-fade-in-up">
             {/* Modal Header */}
-            <div className="bg-gray-900 text-white p-5 border-b-4 border-uniboRed flex justify-between items-center shrink-0">
+            <div className="bg-gray-900 text-white p-5 border-b-4 border-brandBlue flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-lg font-bold font-serif">Add Approved Centre</h3>
                 <p className="text-xs text-gray-400">Register a new university-approved regional centre</p>
@@ -2912,8 +2912,8 @@ const Dashboard = () => {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               {centreError && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg">
-                  <p className="text-xs text-red-700 font-semibold">{centreError}</p>
+                <div className="bg-blue-50 border-l-4 border-red-500 p-3 rounded-lg">
+                  <p className="text-xs text-blue-700 font-semibold">{centreError}</p>
                 </div>
               )}
               <div>
@@ -2923,7 +2923,7 @@ const Dashboard = () => {
                   placeholder="e.g. Study Centre Nairobi"
                   value={newCentreName}
                   onChange={(e) => setNewCentreName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
               <div>
@@ -2933,7 +2933,7 @@ const Dashboard = () => {
                   placeholder="e.g. nairobi@unibo-partner.com"
                   value={newCentreEmail}
                   onChange={(e) => setNewCentreEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
               <div>
@@ -2943,7 +2943,7 @@ const Dashboard = () => {
                   placeholder="e.g. +39 051 209 0000"
                   value={newCentrePhone}
                   onChange={(e) => setNewCentrePhone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-uniboRed font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brandBlue font-semibold"
                 />
               </div>
             </div>
@@ -2958,7 +2958,7 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={addCentre}
-                className="px-5 py-2 bg-gray-900 hover:bg-uniboRed text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
+                className="px-5 py-2 bg-gray-900 hover:bg-brandBlue text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-sm"
               >
                 Create Centre
               </button>
@@ -2980,7 +2980,7 @@ const Dashboard = () => {
             <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0">
               
               {/* Drawer Header */}
-              <div className="bg-gray-900 text-white px-6 py-5 border-b-4 border-uniboRed flex items-center justify-between shrink-0">
+              <div className="bg-gray-900 text-white px-6 py-5 border-b-4 border-brandBlue flex items-center justify-between shrink-0">
                 <div>
                   <h3 className="text-lg font-bold font-serif">System Action Log</h3>
                   <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Historical Audit Feed</p>
