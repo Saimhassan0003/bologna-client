@@ -317,7 +317,7 @@ const UploadDocuments = () => {
                         {transcript3 && <p className="mt-1 text-xs text-green-600 font-semibold">✓ {transcript3.name}</p>}
                       </div>
                     )}
-                  </div>        </div>
+                  </div>
 
                   <div className="pt-6 border-t border-gray-200 flex justify-end">
                     <button
