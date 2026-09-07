@@ -244,15 +244,15 @@ const UploadDocuments = () => {
                   ) : (
                     <div className="flex flex-col items-center">
                       <div className="flex items-center gap-3">
-                        <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                        <div className="bg-[#0d1b2a] text-[brandBlue] px-4 py-3 rounded-lg text-center">
                           <div className="text-2xl font-bold">{timeLeft.days}</div>
                           <div className="text-xs">Days</div>
                         </div>
-                        <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                        <div className="bg-[#0d1b2a] text-[brandBlue] px-4 py-3 rounded-lg text-center">
                           <div className="text-2xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
                           <div className="text-xs">Hours</div>
                         </div>
-                        <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                        <div className="bg-[#0d1b2a] text-[brandBlue] px-4 py-3 rounded-lg text-center">
                           <div className="text-2xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
                           <div className="text-xs">Minutes</div>
                         </div>

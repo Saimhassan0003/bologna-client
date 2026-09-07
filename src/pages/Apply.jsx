@@ -492,7 +492,7 @@ const Apply = () => {
                   <p className="text-sm sm:text-base text-gray-700 max-w-md">Your application has been submitted. However, your documents are still pending.</p>
 
                   {/* Orange warning banner */}
-                  <div className="w-full max-w-2xl bg-[#f97316] text-white p-4 rounded-lg shadow-md mt-2">
+                  <div className="w-full max-w-2xl bg-brandBlue text-white p-4 rounded-lg shadow-md mt-2">
                     <div className="flex items-start gap-3">
                       <div className="text-2xl">⚠️</div>
                       <div className="text-left">
@@ -512,15 +512,15 @@ const Apply = () => {
                     ) : (
                       <div className="flex flex-col items-center">
                         <div className="flex items-center gap-3">
-                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                          <div className="bg-[#0d1b2a] text-brandBlue px-4 py-3 rounded-lg text-center">
                             <div className="text-2xl font-bold">{timeLeft.days}</div>
                             <div className="text-xs">Days</div>
                           </div>
-                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                          <div className="bg-[#0d1b2a] text-brandBlue px-4 py-3 rounded-lg text-center">
                             <div className="text-2xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
                             <div className="text-xs">Hours</div>
                           </div>
-                          <div className="bg-[#0d1b2a] text-[#f97316] px-4 py-3 rounded-lg text-center">
+                          <div className="bg-[#0d1b2a] text-brandBlue px-4 py-3 rounded-lg text-center">
                             <div className="text-2xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
                             <div className="text-xs">Minutes</div>
                           </div>
@@ -537,7 +537,7 @@ const Apply = () => {
                       onClick={() => {
                         navigate(`/upload-documents/${submittedAppId}`);
                       }}
-                      className="w-full bg-[#f97316] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-95 transition-colors"
+                      className="w-full bg-brandBlue text-white px-6 py-3 rounded-lg font-semibold hover:opacity-95 transition-colors"
                     >
                       Upload Documents Now →
                     </button>
