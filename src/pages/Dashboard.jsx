@@ -898,7 +898,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-white">Registry Officer</p>
-              <p className="text-[10px] text-gray-500 font-medium">admin@UTAMED.com</p>
+              <p className="text-[10px] text-gray-500 font-medium">admin@studentportal.com</p>
             </div>
           </div>
           <button

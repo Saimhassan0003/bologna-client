@@ -108,7 +108,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-brandBlue focus:border-brandBlue transition-all text-sm outline-none shadow-sm"
-                  placeholder="admin@UTAMED.com"
+                  placeholder="admin@studentportal.com"
                 />
               </div>
 
